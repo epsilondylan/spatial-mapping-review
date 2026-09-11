@@ -119,12 +119,12 @@ async function renderReference(frameRef,prediction){const box=$('#reference-body
  if(frameRef)box.append(code(frameRef));const url=state.run.reference_url;if(url){const b=el('button','quiet','查看GT物体地图');b.onclick=async()=>{const gt=await get(url);if(gt)box.append(mapSVG(gt),code(gt));b.remove()};box.append(b)}
 }
 function draftKey(scope){return 'spatial-review-draft:'+scope}
-function persistDraft(s){try{localStorage.setItem(draftKey(s.scope),JSON.stringify({note:s.note,verdict:s.verdict,at:Date.now()}))}catch{}}
+function persistDraft(s){try{localStorage.setItem(draftKey(s.scope),JSON.stringify({note:s.note,verdict:s.verdict,baseRevision:s.revision,at:Date.now()}))}catch{}}
 async function loadNote(scope){
  $('#note-text').disabled=true;$('#note-verdict').disabled=true;$('#note-text').value='';$('#note-scope').textContent=state.view==='calls'?`本条模型调用的评价`:`本模型 · 第${items()[state.step].id}帧评价`;
  if(notes.has(scope)){renderNote(notes.get(scope));return}
  const s={scope,note:'',verdict:'neutral',revision:0,loaded:false,dirty:false,saving:false,message:'正在载入云端批注…'};notes.set(scope,s);renderNote(s);
- try{const r=await fetch('/api/notes/'+encodeURIComponent(scope));if(!r.ok)throw new Error();Object.assign(s,await r.json(),{loaded:true,message:'云端已同步'});const draft=localStorage.getItem(draftKey(scope));if(draft){const d=JSON.parse(draft);if(d.note!==s.note||d.verdict!==s.verdict){s.note=d.note;s.verdict=d.verdict;s.dirty=true;s.message='已恢复本地草稿，等待保存'}}}
+ try{const r=await fetch('/api/notes/'+encodeURIComponent(scope));if(!r.ok)throw new Error();Object.assign(s,await r.json(),{loaded:true,message:'云端已同步'});const draft=localStorage.getItem(draftKey(scope));if(draft){const d=JSON.parse(draft);if(d.note!==s.note||d.verdict!==s.verdict){const current={...s};s.note=d.note;s.verdict=d.verdict;s.dirty=true;s.message='已恢复本地草稿，等待保存';if((d.baseRevision??0)!==s.revision){s.conflict=current;s.message='云端已有新版本；旧草稿保留，请确认后覆盖或重新载入。'}}}}
  catch{s.message='云端暂不可用；草稿仍可在本机保存';s.loaded=true;s.offline=true;try{const d=JSON.parse(localStorage.getItem(draftKey(scope)));if(d){s.note=d.note;s.verdict=d.verdict;s.dirty=true}}catch{}}
  renderNote(s);
 }

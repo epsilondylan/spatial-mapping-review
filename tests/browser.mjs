@@ -9,6 +9,10 @@ await page.locator('#note-text').waitFor({state:'visible'});await page.waitForFu
 const note='浏览器验收：第8帧仅原地旋转。'+Date.now();await page.fill('#note-text',note);await page.selectOption('#note-verdict','question');await page.click('#save-note');await page.waitForFunction(()=>document.querySelector('#save-indicator').textContent.includes('已保存到云端'));
 await page.reload();await page.waitForFunction(n=>document.querySelector('#note-text').value===n,note);
 const saved=await page.evaluate(async()=>await(await fetch('/api/notes/frame:common-91100-flash-full:8')).json());if(saved.note!==note)throw new Error('Annotation not persisted on server');
+await page.evaluate(()=>localStorage.setItem('spatial-review-draft:frame:common-91100-flash-full:8',JSON.stringify({note:'较早离线草稿',verdict:'issue',baseRevision:0,at:Date.now()})));
+await page.reload();await page.waitForFunction(()=>document.querySelector('#note-message').textContent.includes('云端已有新版本'));
+const unchanged=await page.evaluate(async()=>await(await fetch('/api/notes/frame:common-91100-flash-full:8')).json());if(unchanged.note!==note)throw new Error('Stale draft overwrote cloud note');
+page.once('dialog',d=>d.accept());await page.click('#reload-note');await page.waitForFunction(n=>document.querySelector('#note-text').value===n,note);
 await page.getByRole('button',{name:'Gemma 4 · 31B',exact:true}).click();await page.click('#calls-view');await page.locator('#timeline-list .step-item').filter({hasText:'200帧读取'}).click();await page.waitForFunction(()=>document.querySelector('#stage-body').innerText.includes('Check Frame 8'));
 await page.getByRole('button',{name:'完整输入',exact:true}).click();await page.waitForSelector('.request-message');await page.waitForFunction(()=>!document.querySelector('#stage-body').innerText.includes('载入完整上下文'));
 if((await page.locator('.request-message').count())<2)throw new Error('Full request not reconstructed');
