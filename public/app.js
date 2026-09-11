@@ -34,7 +34,8 @@ async function selectCase(id,restore={}){
  clear($('#mode-select'));for(const r of runs){const o=el('option','',modeNames[r.mode]||r.mode);o.value=r.mode;$('#mode-select').append(o)}$('#mode-select').value=state.mode;
  listCases();$('#case-sidebar').classList.remove('open');
  const ref=runs.find(r=>r.mode===state.mode);const token=++state.load;$('#stage-body').replaceChildren(el('div','skeleton','正在载入过程记录…'));
- try{const run=await get(ref.manifest);if(token!==state.load)return;state.run=run;state.step=restore.step??0;state.view=restore.view||state.view;
+ try{const run=await get(ref.manifest);if(token!==state.load)return;state.run=run;state.step=restore.step??0;state.view=restore.view||state.view;state.tab=restore.tab||state.tab;
+  $('#chat-link').href='/chat.html?'+new URLSearchParams({run:run.id});
   $('#run-description').textContent=run.description;$('#run-status').textContent=({COMPLETE:'运行已结束',FAILED:'中断记录保留',RUNNING:'导出时仍在运行',SNAPSHOT:'读取记录快照'})[run.status]||run.status;$('#run-status').className='status-pill'+(run.status==='FAILED'?' bad':'');
   clear($('#run-stats'));for(const [v,l] of [[run.frames.length,'观察帧'],[run.calls.length,'模型调用'],[run.calls.filter(c=>c.thinking_chars>0).length,'返回思考正文']]){const n=el('span');n.append(el('strong','',String(v)),document.createTextNode(l));$('#run-stats').append(n)}
   $('#timeline-search').value='';renderTimeline();await selectStep(Math.min(state.step,items().length-1));
@@ -54,7 +55,7 @@ async function selectStep(i){
  state.scope=state.view==='calls'?`call:${s.id}`:`frame:${state.run.id}:${s.id}`;loadNote(state.scope);
  $('#step-kicker').textContent=state.view==='calls'?`模型调用 ${state.step+1} / ${items().length}`:`观察帧 ${s.id} / ${items().length}`;
  $('#step-title').textContent=state.view==='calls'?s.label:`第 ${s.id} 帧 · ${s.receipt.status}`;$('#prev-step').disabled=state.step===0;$('#next-step').disabled=state.step===items().length-1;
- const url=new URL(location.href);url.hash=new URLSearchParams({case:state.case.id,model:state.model,mode:state.mode,view:state.view,step:state.step}).toString();history.replaceState(null,'',url);
+ const url=new URL(location.href);url.hash=new URLSearchParams({case:state.case.id,model:state.model,mode:state.mode,view:state.view,step:state.step,tab:state.tab}).toString();history.replaceState(null,'',url);
  $('#stage-body').replaceChildren(el('div','skeleton','正在载入…'));const token=++state.load;
  if(state.view==='frames'){state.detail=s;renderFrame(s);researchNotes(s.evaluation);renderReference(s.reference);return}
  try{const d=await get(s.detail_url);if(token!==state.load)return;state.detail=d;renderCall(d);researchNotes(d.evaluation);renderReference(null,d.prediction)}catch(e){$('#stage-body').replaceChildren(notice(e.message))}
@@ -71,7 +72,7 @@ function renderCall(d){
  if(state.run.kind==='common')box.append(notice(`这是${d.budget}帧历史的一次整段读取。下面的思考/回答属于这次调用；采集动作来自脚本，不是模型逐帧选择。`,true));
  if(d.status==='FAILED')box.append(notice('协议/接口失败：'+(d.error||'详见记录')+'。原文保留；正式评分不可当作成功。'));
  const mediaBox=el('div');mediaBox.style.marginTop='14px';box.append(mediaBox);gallery(mediaBox,d.images);
- const tabs=el('div','tabs');for(const [id,label] of [['thinking','返回的思考'],['output','工具与回答'],['input','完整输入'],['map','地图与指标']]){const b=el('button',state.tab===id?'active':'',label);b.onclick=()=>{state.tab=id;renderCall(d)};tabs.append(b)}box.append(tabs);
+ const tabs=el('div','tabs');for(const [id,label] of [['thinking','返回的思考'],['output','工具与回答'],['input','完整输入'],['map','地图与指标']]){const b=el('button',state.tab===id?'active':'',label);b.onclick=()=>{state.tab=id;const h=new URLSearchParams(location.hash.slice(1));h.set('tab',id);history.replaceState(null,'','#'+h);renderCall(d)};tabs.append(b)}box.append(tabs);
  const pane=el('div');box.append(pane);const usage=d.usage||{};
  if(state.tab==='thinking'){
   if(d.thinking){pane.append(el('div','status-line',`以下是模型实际返回的分析文本，共 ${d.thinking.length.toLocaleString()} 字符；不是研究者推测。`));const p=code(d.thinking);p.classList.add('thought');pane.append(p)}
@@ -139,10 +140,11 @@ async function saveNote(scope){
  catch{s.offline=true;s.message='云端保存失败，草稿已保存在本机；可重试或导出。';persistDraft(s)}
  finally{s.saving=false;statusNote(s);if(s.dirty&&!s.offline&&!s.conflict)setTimeout(()=>saveNote(scope),100)}
 }
+$('#show-complete-output').onclick=()=>{state.tab='output';if(state.view!=='calls'){state.view='calls';state.step=0;renderTimeline();selectStep(0)}else selectStep(state.step)};
 $('#note-text').oninput=editNote;$('#note-verdict').onchange=editNote;$('#save-note').onclick=()=>saveNote(state.scope);$('#reload-note').onclick=()=>{const s=notes.get(state.scope);if(s?.dirty&&!confirm('本地草稿仍可导出。现在载入云端版本以重新编辑？'))return;localStorage.removeItem(draftKey(state.scope));notes.delete(state.scope);loadNote(state.scope)};
 $('#export-notes').onclick=async()=>{const drafts={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k?.startsWith('spatial-review-draft:'))drafts[k.slice(21)]=JSON.parse(localStorage.getItem(k))}let cloud=null;try{const r=await fetch('/api/notes/export');if(!r.ok)throw new Error();cloud=await r.json()}catch{toast('云端暂不可用，导出本地草稿')}download('空间建图评价-'+new Date().toISOString().slice(0,10)+'.json',{cloud,drafts})};
 $('#case-search').oninput=listCases;$('#timeline-search').oninput=renderTimeline;$('#mode-select').onchange=()=>selectCase(state.case.id,{model:state.model,mode:$('#mode-select').value});
 for(const v of ['calls','frames'])$('#'+v+'-view').onclick=()=>{if(state.scope)saveNote(state.scope);state.view=v;state.step=0;$('#timeline-search').value='';renderTimeline();selectStep(0)};
 $('#prev-step').onclick=()=>selectStep(state.step-1);$('#next-step').onclick=()=>selectStep(state.step+1);$('#menu-toggle').onclick=()=>$('#case-sidebar').classList.toggle('open');$('#close-image').onclick=()=>$('#image-dialog').close();
 document.addEventListener('keydown',e=>{if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName)){if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();saveNote(state.scope)}return}if($('#image-dialog').open)return;if(['j','ArrowRight'].includes(e.key)){e.preventDefault();selectStep(state.step+1)}if(['k','ArrowLeft'].includes(e.key)){e.preventDefault();selectStep(state.step-1)}});
-try{state.index=await get('/data/index.json');$('#case-count').textContent=state.index.summary.cases;$('#snapshot').textContent='记录快照 · '+new Date(state.index.snapshot_at).toLocaleString('zh-CN',{timeZone:'Asia/Hong_Kong',hour12:false});const h=new URLSearchParams(location.hash.slice(1));await selectCase(h.get('case')||state.index.cases[0].id,{model:h.get('model')||'flash',mode:h.get('mode')||'full',view:h.get('view')||'calls',step:Number(h.get('step')||0)});}catch(e){$('#stage-body').replaceChildren(notice('载入失败：'+e.message+'。请刷新重试。'))}
+try{state.index=await get('/data/index.json');$('#case-count').textContent=state.index.summary.cases;$('#snapshot').textContent='记录快照 · '+new Date(state.index.snapshot_at).toLocaleString('zh-CN',{timeZone:'Asia/Hong_Kong',hour12:false});const h=new URLSearchParams(location.hash.slice(1));await selectCase(h.get('case')||state.index.cases[0].id,{model:h.get('model')||'flash',mode:h.get('mode')||'full',view:h.get('view')||'calls',step:Number(h.get('step')||0),tab:h.get('tab')||'thinking'});}catch(e){$('#stage-body').replaceChildren(notice('载入失败：'+e.message+'。请刷新重试。'))}
