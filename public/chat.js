@@ -1,7 +1,7 @@
 import {get,getRequest,el,code,detail,reviewURL} from './evidence.js';
 import {mountNotes} from './chat-notes.js';
 const $=s=>document.querySelector(s),params=new URLSearchParams(location.search),hash=new URLSearchParams(location.hash.slice(1));
-const names={qwen:'Qwen 3.8 · 27B',gemma:'Gemma 4 · 31B',flash:'Gemini 3.8 Flash',astra:'GPT‑6 Astra'};
+const names={qwen:'Qwen 3.8 · 27B',gemma:'Gemma 4 · 31B',flash:'Gemini 3.8 Flash',astra:'GPT‑6 Astra',luna:'GPT‑5.6 Luna'};
 const modes={full:'完整RGB · 允许思考',last8:'最近8图 · 允许思考',full_nothink:'完整RGB · 关闭思考',caption:'逐图描述记忆',caption_latest1:'描述记忆 + 末帧',claude_last8:'Claude Code · 最近8图',codex_last8:'Codex · 最近8图'};
 let run,caseInfo,sections=[],selected=0,observer;
 function setHash(i,focus='call'){history.replaceState(null,'','#'+new URLSearchParams({call:i,focus}))}
@@ -50,7 +50,7 @@ try{
  caseInfo=chosen.c;run=await get(chosen.r.manifest);document.title=`${caseInfo.title} · ${names[run.model]} · 完整对话`;
  for(const {c,r} of choices){const o=el('option','',`${c.title} / ${names[r.model]} / ${modes[r.mode]||r.mode}`);o.value=r.id;$('#trajectory').append(o)}$('#trajectory').value=run.id;$('#trajectory').onchange=()=>{location.href='/chat.html?'+new URLSearchParams({run:$('#trajectory').value})};
  $('#chat-title').textContent=`${caseInfo.title} · ${names[run.model]}`;
- $('#chat-description').textContent=run.kind==='common'?'动作由采集脚本产生。模型在检查点一次性读取图片与动作历史，再输出地图；不是模型逐帧采取行动。':`这些是 ${run.model==='astra'?'Codex':'Claude Code'} 中的真实模型调用。右侧工具请求由所选模型提出；左侧后续输入保留工具返回与环境回执。`;
+ $('#chat-description').textContent=run.kind==='common'?'动作由采集脚本产生。模型在检查点一次性读取图片与动作历史，再输出地图；不是模型逐帧采取行动。':`这些是 ${['astra','luna'].includes(run.model)?'Codex':'Claude Code'} 中的真实模型调用。右侧工具请求由所选模型提出；左侧后续输入保留工具返回与环境回执。`;
  const conversation=$('#conversation');selected=Math.max(0,Math.min(Number(hash.get('call'))||0,run.calls.length-1));
  run.calls.forEach((c,i)=>{const node=el('section','chat-call'),heading=el('div','chat-call-heading'),content=el('div','chat-call-content');node.id='call-'+i;
   heading.append(el('h2','',`调用 ${i+1} · ${c.label}`));const output=el('button','','完整回答 ↓'),review=el('button','','评价本次调用');output.onclick=()=>jump(i,'reply');review.onclick=async()=>{selected=i;setHash(i);try{selectEvaluation(i,await loadCall(i));if(innerWidth<=1000)$('#annotation').scrollIntoView({block:'center'})}catch{}};heading.append(output,review);node.append(heading,content);content.append(el('div','chat-load-placeholder',`调用 ${i+1} · 滚动到这里自动载入完整消息`));conversation.append(node);sections.push({node,content,promise:null});const o=el('option','',`${i+1} · ${c.label}`);o.value=String(i);$('#jump-call').append(o);

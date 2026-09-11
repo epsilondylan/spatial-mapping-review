@@ -1,5 +1,5 @@
 const $=s=>document.querySelector(s), el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n};
-const modelNames={qwen:'Qwen 3.8 · 27B',gemma:'Gemma 4 · 31B',flash:'Gemini 3.8 Flash',astra:'GPT‑6 Astra'};
+const modelNames={qwen:'Qwen 3.8 · 27B',gemma:'Gemma 4 · 31B',flash:'Gemini 3.8 Flash',astra:'GPT‑6 Astra',luna:'GPT‑5.6 Luna'};
 const modeNames={full:'完整RGB · 允许思考',last8:'最近8图 · 允许思考',full_nothink:'完整RGB · 关闭思考',caption:'逐图描述记忆',caption_latest1:'描述记忆 + 末帧',claude_last8:'Claude Code · 最近8图',codex_last8:'Codex · 最近8图'};
 const state={index:null,case:null,run:null,view:'calls',step:0,detail:null,tab:'thinking',image:0,load:0,scope:null,model:'flash',mode:'full'};
 const cache=new Map(),notes=new Map();let saveTimer;
@@ -21,7 +21,7 @@ function listCases(){
  for(const [kind,label] of [['common','同轨迹 · 读取对照'],['active','Claude Code · 自主探索']]){
   box.append(el('div','group-label',label));
   for(const c of state.index.cases.filter(c=>c.kind===kind&&c.title.includes(query))){
-   const b=el('button','case-button'+(state.case?.id===c.id?' active':''));b.append(el('strong','',c.title),el('small','',kind==='common'?'同图同动作 · 对照分析':c.runs.map(r=>({qwen:'Qwen',gemma:'Gemma',flash:'Flash',astra:'Astra'})[r.model]||r.model).join(' / ')));b.onclick=()=>selectCase(c.id);box.append(b);
+   const b=el('button','case-button'+(state.case?.id===c.id?' active':''));b.append(el('strong','',c.title),el('small','',kind==='common'?'同图同动作 · 对照分析':c.runs.map(r=>({qwen:'Qwen',gemma:'Gemma',flash:'Flash',astra:'Astra',luna:'Luna'})[r.model]||r.model).join(' / ')));b.onclick=()=>selectCase(c.id);box.append(b);
   }
  }
 }

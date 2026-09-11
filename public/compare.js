@@ -1,5 +1,5 @@
 import {get,el} from './evidence.js';
-const $=s=>document.querySelector(s),names={qwen:'Qwen 3.8 · 27B',gemma:'Gemma 4 · 31B',flash:'Gemini 3.8 Flash',astra:'GPT‑6 Astra'},colors={qwen:'#4166c3',gemma:'#bd6e32',flash:'#219678',astra:'#9562b6'},labels={COMPLETE:'已结束',RUNNING:'运行中',STARTING:'启动中',FAILED:'中断（保留结果）'};
+const $=s=>document.querySelector(s),names={qwen:'Qwen 3.8 · 27B',gemma:'Gemma 4 · 31B',flash:'Gemini 3.8 Flash',astra:'GPT‑6 Astra',luna:'GPT‑5.6 Luna'},colors={qwen:'#4166c3',gemma:'#bd6e32',flash:'#219678',astra:'#9562b6',luna:'#cf527d'},labels={COMPLETE:'已结束',RUNNING:'运行中',STARTING:'启动中',FAILED:'中断（保留结果）'};
 let index,runs=[],version=0;
 const fmt=x=>typeof x==='number'?x.toFixed(3):'—';
 function chart(){
@@ -18,7 +18,7 @@ function chart(){
 async function render(){
  const token=++version,c=index.cases.find(c=>c.id===$('#compare-scene').value);if(!c)return;const loaded=await Promise.all(c.runs.map(r=>get(r.manifest)));if(token!==version)return;runs=loaded;const box=$('#compare-rows');box.replaceChildren();$('#compare-legend').replaceChildren();
  for(const r of runs){const legend=el('span');legend.append(el('i','legend-dot legend-'+r.model),document.createTextNode(names[r.model]||r.model));$('#compare-legend').append(legend);
-  const cps=r.checkpoints?.length?r.checkpoints:[null];for(const cp of cps){const tr=el('tr'),title=el('td','',names[r.model]||r.model);title.append(el('small','',r.model==='astra'?'Codex · 最近8图':'Claude Code · 最近8图'));tr.append(title);
+  const cps=r.checkpoints?.length?r.checkpoints:[null];for(const cp of cps){const tr=el('tr'),title=el('td','',names[r.model]||r.model);title.append(el('small','',['astra','luna'].includes(r.model)?'Codex · 最近8图':'Claude Code · 最近8图'));tr.append(title);
    for(const text of [labels[r.status]||r.status,r.frames.length,cp?cp.budget:'等待检查点',cp?(String(cp.meta.actual_frames)+(cp.meta.early_stop?'（沿用）':'')):'—',fmt(cp?.metrics?.object_f1),fmt(cp?.metrics?.pair_recall),fmt(cp?.metrics?.diag_ungated_position_median)])tr.append(el('td','',String(text)));
    const td=el('td'),a=el('a','','完整对话 ↗');a.href='/chat.html?'+new URLSearchParams({run:r.id});td.append(a);tr.append(td);box.append(tr);
   }

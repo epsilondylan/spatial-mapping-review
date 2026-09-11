@@ -4,3 +4,6 @@ dist/
 test-results/
 .local/
 *.log
+
+__pycache__/
+*.pyc
