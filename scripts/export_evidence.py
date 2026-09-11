@@ -5,6 +5,8 @@ SITE=Path(__file__).resolve().parents[1];ROOT=SITE.parent;PUBLIC=SITE/'public';D
 sys.path.insert(0,str(ROOT/'src'))
 from bridge import decode_tools
 from readout_format import extract
+from scoring import score
+from diagnostics import diagnose
 for d in ['data/runs','data/calls','data/requests','data/references','data/blocks','media']:(PUBLIC/d).mkdir(parents=True,exist_ok=True)
 BLOCKS=collections.defaultdict(dict)
 def block(value):
@@ -42,6 +44,17 @@ def images(req):
    out.extend(b['image_url']['url'] for b in m['content'] if b.get('type')=='image_url')
  return out
 def model_output(response):
+ if response.get('object')=='response' or 'output' in response and 'choices' not in response:
+  thought=[];answer=[];calls=[]
+  for item in response.get('output',[]):
+   if item.get('type')=='reasoning':thought.extend(x.get('text','') for x in item.get('summary',[]))
+   elif item.get('type')=='message':answer.extend(x.get('text','') for x in item.get('content',[]) if x.get('type')=='output_text')
+   elif item.get('type') in ['function_call','custom_tool_call']:
+    raw=item.get('arguments',item.get('input',''))
+    try:raw=json.loads(raw)
+    except (ValueError,TypeError):pass
+    calls.append({'name':item.get('name'),'input':raw})
+  return '\n\n'.join(thought),'\n\n'.join(answer),calls,response.get('status')
  choice=(response.get('choices') or [{}])[0];msg=choice.get('message') or {};text=msg.get('content') or '';thought=msg.get('reasoning_content') or ''
  match=re.search(r'<\|channel>thought\n(.*?)<channel\|>',text,re.S)
  if match:thought=thought or match[1];text=text[match.end():]
@@ -110,13 +123,64 @@ def export_common(seed):
    manifest={'id':rid,'case_id':case['id'],'model':arm,'mode':mode,'kind':'common','status':'SNAPSHOT','description':'图像由固定脚本采集，动作不是该模型选择。模型在检查点一次读取整段历史；不存在每帧独立思考记录。','frames':fs,'calls':calls,'reference_url':write(f'data/references/{case["id"]}.json',read(source/'private/gt.json'))}
    case['runs'].append({'id':rid,'model':arm,'mode':mode,'status':'SNAPSHOT','frames':len(fs),'calls':len(calls),'manifest':write('data/runs/'+rid+'.json',manifest)})
  return case
+def checkpoints(source,state):
+ result=[];gt=read(source/'private/gt.json')
+ for cp in state.get('completed_checkpoints',[]):
+  mp=source/'maps'/f'{cp}.json';pred=read(mp);meta=read(source/'maps'/f'{cp}.meta.json',{})
+  if not pred or not meta:continue
+  valid=pred.get('frame')=='start_camera_xy' and pred.get('units')=='meters' and isinstance(pred.get('objects'),list) and hashlib.sha256(mp.read_bytes()).hexdigest()==meta.get('map_sha256')
+  metrics=None
+  if valid and gt:
+   metrics=score(pred,gt);metrics.update(diagnose(pred,gt));metrics={k:v for k,v in metrics.items() if k not in ['pairs','matches']}
+  result.append({'budget':cp,'prediction':pred,'meta':meta,'valid':valid,'metrics':metrics})
+ return result
+def native_message(item):
+ typ=item.get('type');role=item.get('role')
+ if not role:role='assistant' if typ in ['reasoning','function_call','custom_tool_call'] else 'tool' if typ in ['function_call_output','custom_tool_call_output'] else 'user'
+ content=item.get('content')
+ if content is None:content=item.get('output',item.get('input',item.get('arguments','')))
+ if isinstance(content,list):
+  blocks=[]
+  for b in content:
+   if b.get('type') in ['input_text','output_text']:blocks.append({'type':'text','text':b.get('text','')})
+   elif b.get('type')=='input_image':blocks.append({'type':'image_url','image_url':{'url':b.get('image_url'),'detail':b.get('detail','auto')}})
+   else:blocks.append(b)
+  content=blocks
+ elif content is None:content=item.get('output',item.get('input',item.get('arguments','')))
+ return {'role':role,'content':content,'native_input_item':item}
+def export_astra(source,case,rid,state,fs):
+ calls=[]
+ for reqp in sorted((source/'requests').glob('*.upstream_input.json')):
+  ident=reqp.name.split('.')[0];native=read(reqp);resfile=reqp.with_name(ident+'.response.sse');response=None;events=[]
+  if not native or not resfile.exists():continue
+  for line in resfile.read_text().splitlines():
+   if not line.startswith('data:'):continue
+   try:event=json.loads(line[5:])
+   except ValueError:continue
+   events.append(event)
+   if event.get('type') in ['response.completed','response.incomplete','response.failed']:response=event.get('response')
+  if response is None:continue
+  meta=read(reqp.with_name(ident+'.meta.json'),{});messages=[]
+  if native.get('instructions'):messages.append({'role':'system','content':native['instructions']})
+  messages.extend(native_message(i) for i in native.get('input',[]))
+  req={**{k:v for k,v in native.items() if k not in ['instructions','input']},'messages':messages}
+  rawurl=write('data/requests/'+rid+'--'+ident+'.native.json',replace_images(native))
+  extras={'native_request_url':rawurl,'reasoning_visibility':'summary_only','status':'RECORDED' if response.get('status')=='completed' else 'FAILED','label':'Codex · '+('工具调用' if any(i.get('type') in ['function_call','custom_tool_call'] for i in response.get('output',[])) else '模型回答')}
+  exported=export_call(rid,ident,req,response,{'time':meta.get('started'),'omitted':max(0,meta.get('images_before',0)-meta.get('images_after',0))},extras);calls.append(exported)
+ manifest={'id':rid,'case_id':case['id'],'model':'astra','mode':'codex_last8','kind':'active','status':state.get('status'),'description':'GPT‑6 Astra 在独立 bwrap 中运行原生 Codex。动作环境与帧预算相同，工具框架与 Claude Code 不同。实际输入保留最近8图；推理只展示服务返回的摘要。','state':state,'isolation':read(source/'private/isolation.json'),'checkpoints':checkpoints(source,state),'frames':fs,'calls':calls,'reference_url':write(f'data/references/{case["id"]}.json',read(source/'private/gt.json'))}
+ return {'id':rid,'model':'astra','mode':'codex_last8','status':state.get('status'),'frames':len(fs),'calls':len(calls),'manifest':write('data/runs/'+rid+'.json',manifest)}
 def export_active(seed):
  case={'id':f'active-{seed}','title':f'自主探索 {seed}','kind':'active','description':'真实Claude Code · 按调用审阅工具执行与上下文','runs':[]}
- for arm in ['qwen','gemma']:
-  source=ROOT/'runs'/f'{arm}_{seed}';state=read(source/'state.json',{});fs=frames(source)
+ for arm in ['qwen','gemma','flash','astra']:
+  source=ROOT/('api_autonomous' if arm in ['flash','astra'] else 'runs')/f'{arm}_{seed}';state=read(source/'state.json',{});fs=frames(source)
   if not state:continue
-  rid=f'active-{seed}-{arm}';ledger={x['id']:x for x in lines(source/'requests/ledger.jsonl')};calls=[]
+  rid=f'active-{seed}-{arm}';
+  if arm=='astra':
+   exported=export_astra(source,case,rid,state,fs)
+   case['runs'].append(exported);continue
+  ledger={x['id']:x for x in lines(source/'requests/ledger.jsonl')};calls=[]
   for reqp in sorted((source/'requests').glob('*_request.json'),key=lambda p:p.stat().st_mtime):
+   if reqp.name.endswith('_claude_request.json'):continue
    ident=reqp.name.removesuffix('_request.json');response=read(reqp.with_name(ident+'_response.json'));request=read(reqp)
    if not request:continue
    meta=ledger.get(ident,{});extra={}
@@ -125,7 +189,7 @@ def export_active(seed):
     if not http.exists() or http.read_text().startswith('200'):continue
     response={'model':arm,'error':http.read_text()};extra={'status':'FAILED','error':http.read_text(),'label':'接口错误（无模型回答）'}
    calls.append(export_call(rid,ident,request,response,meta,extra))
-  manifest={'id':rid,'case_id':case['id'],'model':arm,'mode':'claude_last8','kind':'active','status':state.get('status'),'description':'模型通过Claude Code选择工具和动作。每次模型调用的实际输入已保存，包含近期8图移除标记；观察帧列表记录实际执行回执。','state':state,'frames':fs,'calls':calls,'reference_url':write(f'data/references/{case["id"]}.json',read(source/'private/gt.json'))}
+  manifest={'id':rid,'case_id':case['id'],'model':arm,'mode':'claude_last8','kind':'active','status':state.get('status'),'description':'模型通过Claude Code选择工具和动作。每次模型调用的实际输入已保存，包含近期8图移除标记；观察帧列表记录实际执行回执。','state':state,'isolation':read(source/'private/isolation.json'),'checkpoints':checkpoints(source,state),'frames':fs,'calls':calls,'reference_url':write(f'data/references/{case["id"]}.json',read(source/'private/gt.json'))}
   case['runs'].append({'id':rid,'model':arm,'mode':'claude_last8','status':state.get('status'),'frames':len(fs),'calls':len(calls),'manifest':write('data/runs/'+rid+'.json',manifest)})
  return case
 cases=[export_common(s) for s in [91100,91101]]
@@ -133,5 +197,5 @@ for seed in range(91100,91110):
  c=export_active(seed)
  if c['runs']:cases.append(c)
 for prefix,values in BLOCKS.items():write('data/blocks/'+prefix+'.json',values)
-write('data/index.json',{'snapshot_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'title':'空间建图复盘','cases':cases,'notes':['这是导出时刻的真实记录快照；后台实验仍可能继续。','Flash只返回最终回答和思考token计数，未返回思考正文。','研究者评价与GT只用于离线复盘，不是模型输入。','图片与上下文采用无损去重存储，原始文字和工具定义保留。'],'summary':{'cases':len(cases),'runs':sum(len(c['runs']) for c in cases),'calls':sum(r['calls'] for c in cases for r in c['runs'])}})
+write('data/index.json',{'snapshot_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'title':'空间建图复盘','cases':cases,'notes':['这是导出时刻的真实记录快照；后台实验仍可能继续。','Flash记录保留接口实际返回的回答/工具请求及思考token计数；思考正文只有实际返回时才展示。','研究者评价与GT只用于离线复盘，不是模型输入。','图片与上下文采用无损去重存储，原始文字和工具定义保留。'],'summary':{'cases':len(cases),'runs':sum(len(c['runs']) for c in cases),'calls':sum(r['calls'] for c in cases for r in c['runs'])}})
 print(json.dumps(read(DATA/'index.json')['summary']),flush=True)

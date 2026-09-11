@@ -25,3 +25,11 @@ npm run build
 The site is a timestamped evidence snapshot. Refreshing experiment evidence requires rerunning the exporter and publishing a new source version. Database annotations are independent of deployment assets and persist across versions.
 
 Sites uses `dist/server/index.js`, `dist/client`, and `dist/.openai/hosting.json`. The Worker initializes the annotation table on first API use. `npm run build` packages only static viewer assets and the Worker, not the local database or experiment credential files.
+
+## Trajectory chat and autonomous comparison
+
+`/chat.html?run=<run-id>` renders every actual input message and response per call in chronological order. System/user/tool messages appear on the left; assistant history and new model replies appear on the right. Repeated historical context is retained for request fidelity. `#call=0&focus=reply` jumps directly to a complete answer. Images and text are untruncated; long trajectories load progressively. Call annotations use the same database scopes as the step viewer.
+
+`/compare.html` shows completed autonomous checkpoint maps, the shared evaluator metrics, and exportable SVG curves. Early-stop carry-forward points use open circles. Qwen/Gemma/Flash run Claude Code; Astra runs native Codex. This is a comparison of model plus agent framework, not an isolated weights ranking. API service aliases do not independently prove upstream weight versions.
+
+Astra uses recorded native Responses requests after the explicit last-eight-image transform. The original request JSON remains available in addition to the role-based display. Provider-returned reasoning summaries are labeled as summaries, never as complete internal reasoning. No new inference is performed by the site.
