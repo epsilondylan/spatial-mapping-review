@@ -38,8 +38,16 @@ export default {async fetch(request,env){
  if(url.pathname.startsWith('/api/'))return handleAPI(request,env);
  if(!env.ASSETS)return new Response('Asset binding unavailable',{status:503});
  if(url.pathname==='/')url.pathname='/index.html';
- const response=await env.ASSETS.fetch(new Request(url,request));
+ let response;
+ let compressedJSON=false;
+ if(url.pathname.endsWith('.json')){
+  const compressedURL=new URL(url);compressedURL.pathname+='.gz';
+  response=await env.ASSETS.fetch(new Request(compressedURL,request));
+  compressedJSON=response.ok;
+ }
+ if(!response||!response.ok)response=await env.ASSETS.fetch(new Request(url,request));
  const h=new Headers(response.headers);h.set('x-content-type-options','nosniff');h.set('referrer-policy','same-origin');
+ if(compressedJSON){h.set('content-encoding','gzip');h.set('content-type','application/json; charset=utf-8')}
  h.set('content-security-policy',"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'");
  return new Response(response.body,{status:response.status,headers:h});
 }};

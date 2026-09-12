@@ -1,1 +1,0 @@
-{"format":"spatial-blocks-v1","payload":{"messages":[{"$block":"55cfd7979e175570b46bd606860c2b99751f675ffdda8d3bc5a9cca3d1948f4e"}],"max_tokens":32768,"chat_template_kwargs":{"enable_thinking":true},"model":"gemma-4-31b","stream":false,"temperature":0.6}}

@@ -1,1 +1,0 @@
-{"format":"spatial-blocks-v1","payload":{"model":"gemini-3.8-flash","messages":[{"$block":"67d846cb2dea3e53cb9d4b034938a0422a438e72ccc213bd9f0cc74e650c218a"}],"temperature":0.6,"max_tokens":32768,"reasoning_effort":"high"}}
