@@ -1,6 +1,12 @@
 const cache=new Map();
 export async function get(url){
- if(!cache.has(url))cache.set(url,fetch(url).then(r=>{if(!r.ok)throw new Error('无法读取记录：'+r.status);return r.json()}).catch(e=>{cache.delete(url);throw e}));
+ if(!cache.has(url))cache.set(url,(async()=>{
+  const compressed=url.endsWith('.json'),r=await fetch(compressed?url+'.gz':url);
+  if(!r.ok)throw new Error('无法读取记录：'+r.status);
+  if(!compressed)return r.json();
+  if(typeof DecompressionStream!=='function')throw new Error('当前浏览器不支持压缩实验记录');
+  return new Response(r.body.pipeThrough(new DecompressionStream('gzip'))).json();
+ })().catch(e=>{cache.delete(url);throw e}));
  return cache.get(url);
 }
 export async function getRequest(url){

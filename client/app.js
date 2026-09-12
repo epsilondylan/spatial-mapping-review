@@ -3,7 +3,7 @@ const modelNames={qwen:'Qwen 3.8 · 27B',gemma:'Gemma 4 · 31B',flash:'Gemini 3.
 const modeNames={full:'完整RGB · 允许思考',last8:'最近8图 · 允许思考',full_nothink:'完整RGB · 关闭思考',caption:'逐图描述记忆',caption_latest1:'描述记忆 + 末帧',claude_last8:'Claude Code · 最近8图',codex_last8:'Codex · 最近8图'};
 const state={index:null,case:null,run:null,view:'calls',step:0,detail:null,tab:'thinking',image:0,load:0,scope:null,model:'flash',mode:'full'};
 const cache=new Map(),notes=new Map();let saveTimer;
-const get=async u=>{if(cache.has(u))return cache.get(u);const r=await fetch(u);if(!r.ok)throw new Error('无法读取记录：'+r.status);const d=await r.json();cache.set(u,d);return d};
+const get=async u=>{if(cache.has(u))return cache.get(u);const compressed=u.endsWith('.json'),r=await fetch(compressed?u+'.gz':u);if(!r.ok)throw new Error('无法读取记录：'+r.status);if(compressed&&typeof DecompressionStream!=='function')throw new Error('当前浏览器不支持压缩实验记录');const d=compressed?await new Response(r.body.pipeThrough(new DecompressionStream('gzip'))).json():await r.json();cache.set(u,d);return d};
 async function getRequest(url){
  const data=await get(url);if(data.format!=='spatial-blocks-v1')return data;
  const ids=data.payload.messages.map(m=>m.$block);if(data.payload.tools?.$block)ids.push(data.payload.tools.$block);
@@ -95,7 +95,7 @@ async function renderInput(pane,d){
  const wait=el('div','skeleton','载入完整上下文…');pane.append(wait);
  try{const req=await getRequest(d.request_url);if(state.detail?.id!==d.id||state.tab!=='input')return;wait.remove();
   const conf=el('details','request-message');conf.append(el('summary','','请求设置与工具定义'),code(Object.fromEntries(Object.entries(req).filter(([k])=>k!=='messages'))));pane.append(conf);
-  if(d.native_request_url){const a=el('a','','下载原生 Responses 完整请求');a.href=d.native_request_url;a.download='native-request.json';pane.append(a)}req.messages.forEach((m,i)=>{const det=el('details','request-message');det.open=i>=req.messages.length-2;const sum=el('summary');sum.append(el('span','request-role',m.role),document.createTextNode(`消息 ${i+1}${m.tool_call_id?' · '+m.tool_call_id:''}`));det.append(sum);
+  if(d.native_request_url){const a=el('a','','下载原生 Responses 完整请求');a.href=d.native_request_url+'.gz';a.download='native-request.json.gz';pane.append(a)}req.messages.forEach((m,i)=>{const det=el('details','request-message');det.open=i>=req.messages.length-2;const sum=el('summary');sum.append(el('span','request-role',m.role),document.createTextNode(`消息 ${i+1}${m.tool_call_id?' · '+m.tool_call_id:''}`));det.append(sum);
    if(typeof m.content==='string')det.append(code(m.content));else for(const b of m.content||[]){if(b.type==='text')det.append(code(b.text));else if(b.type==='image_url')det.append(imageNode(b.image_url.url));else det.append(code(b))}
    if(m.tool_calls)det.append(code(m.tool_calls));pane.append(det);
   });
