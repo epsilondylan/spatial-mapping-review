@@ -21,16 +21,16 @@ function listCases(){
  for(const [kind,label] of [['common','同轨迹 · 读取对照'],['active','Claude Code · 自主探索']]){
   box.append(el('div','group-label',label));
   for(const c of state.index.cases.filter(c=>c.kind===kind&&c.title.includes(query))){
-   const b=el('button','case-button'+(state.case?.id===c.id?' active':''));b.append(el('strong','',c.title),el('small','',kind==='common'?'同图同动作 · 对照分析':c.runs.map(r=>({qwen:'Qwen',gemma:'Gemma',flash:'Flash',astra:'Astra',luna:'Luna',opus:'Opus 5'})[r.model]||r.model).join(' / ')));b.onclick=()=>selectCase(c.id);box.append(b);
+   const b=el('button','case-button'+(state.case?.id===c.id?' active':''));b.append(el('strong','',c.title),el('small','',kind==='common'?'同图同动作 · 对照分析':c.runs.filter(r=>r.model!=='opus').map(r=>({qwen:'Qwen',gemma:'Gemma',flash:'Flash',astra:'Astra',luna:'Luna'})[r.model]||r.model).join(' / ')));b.onclick=()=>selectCase(c.id);box.append(b);
   }
  }
 }
 async function selectCase(id,restore={}){
  if(state.scope)saveNote(state.scope);state.case=state.index.cases.find(c=>c.id===id)||state.index.cases[0];state.model=restore.model||state.model;state.mode=restore.mode||state.mode;
- const models=[...new Set(state.case.runs.map(r=>r.model))];if(!models.includes(state.model))state.model=models[0];
+ const models=[...new Set(state.case.runs.filter(r=>r.model!=='opus').map(r=>r.model))];if(!models.includes(state.model))state.model=models[0];
  $('#case-kind').textContent=state.case.kind==='common'?'同轨迹 · 三模型读取对照':'模型自主探索 · 完整调用记录';$('#case-title').textContent=state.case.title;
  clear($('#models'));for(const m of models){const b=el('button',m===state.model?'selected':'',modelNames[m]);b.onclick=()=>selectCase(state.case.id,{model:m,mode:state.mode});$('#models').append(b)}
- const runs=state.case.runs.filter(r=>r.model===state.model);if(!runs.some(r=>r.mode===state.mode))state.mode=runs[0].mode;
+ const runs=state.case.runs.filter(r=>r.model===state.model&&r.model!=='opus');if(!runs.some(r=>r.mode===state.mode))state.mode=runs[0].mode;
  clear($('#mode-select'));for(const r of runs){const o=el('option','',modeNames[r.mode]||r.mode);o.value=r.mode;$('#mode-select').append(o)}$('#mode-select').value=state.mode;
  listCases();$('#case-sidebar').classList.remove('open');
  const ref=runs.find(r=>r.mode===state.mode);const token=++state.load;$('#stage-body').replaceChildren(el('div','skeleton','正在载入过程记录…'));

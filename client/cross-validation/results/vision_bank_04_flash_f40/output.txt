@@ -1,3 +1,0 @@
-```json
-{"objects":[{"id":"instance_1","category":"potted plant","bbox":[70,325,204,512]}]}
-```

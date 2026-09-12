@@ -1,3 +1,0 @@
-The user wants me to identify objects in the image. The image is described as a 512x512 RGB image. Looking at the provided image, it appears to be completely white/blank. There are no visible objects, no floor, walls, ceiling, or anything else. It is a uniform white field.
-
-Therefore, the list of objects should be empty.
