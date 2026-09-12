@@ -1,0 +1,62 @@
+{
+  "id": "chatcmpl-202609120301160079365008268d9d6tHQ0fMP6",
+  "model": "gemini-3.8-flash",
+  "object": "chat.completion",
+  "created": 1789182214,
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n{\n  \"frame\": \"start_camera_xy\",\n  \"units\": \"meters\",\n  \"objects\": [\n    {\"id\": \"table\", \"category\": \"table\", \"x\": -2.0, \"y\": 3.7},\n    {\"id\": \"chair_1\", \"category\": \"chair\", \"x\": -1.6, \"y\": 4.6},\n    {\"id\": \"cabinet\", \"category\": \"cabinet\", \"x\": -2.1, \"y\": 2.0},\n    {\"id\": \"potted_plant_1\", \"category\": \"potted plant\", \"x\": -0.79, \"y\": 5.05},\n    {\"id\": \"potted_plant_2\", \"category\": \"potted plant\", \"x\": 1.0, \"y\": 3.2},\n    {\"id\": \"sofa\", \"category\": \"sofa\", \"x\": 1.7, \"y\": 3.6},\n    {\"id\": \"chair_2\", \"category\": \"chair\", \"x\": 1.5, \"y\": 4.8},\n    {\"id\": \"floor_lamp\", \"category\": \"floor lamp\", \"x\": 2.1, \"y\": 1.2}\n  ],\n  \"stop_reason\": \"readout\"\n}\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 45381,
+    "completion_tokens": 12335,
+    "total_tokens": 57716,
+    "billing_usage": {
+      "source": "gemini_chat",
+      "semantic": "gemini",
+      "gemini_usage_metadata": {
+        "promptTokenCount": 45381,
+        "toolUsePromptTokenCount": 0,
+        "candidatesTokenCount": 313,
+        "totalTokenCount": 57716,
+        "thoughtsTokenCount": 12022,
+        "cachedContentTokenCount": 35906,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 1821
+          },
+          {
+            "modality": "IMAGE",
+            "tokenCount": 43560
+          }
+        ],
+        "toolUsePromptTokensDetails": [],
+        "candidatesTokensDetails": []
+      }
+    },
+    "prompt_tokens_details": {
+      "cached_tokens": 35906,
+      "text_tokens": 1821,
+      "audio_tokens": 0,
+      "image_tokens": 43560
+    },
+    "completion_tokens_details": {
+      "text_tokens": 0,
+      "audio_tokens": 0,
+      "image_tokens": 0,
+      "reasoning_tokens": 12022
+    },
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "input_tokens_details": null,
+    "claude_cache_creation_5_m_tokens": 0,
+    "claude_cache_creation_1_h_tokens": 0
+  }
+}

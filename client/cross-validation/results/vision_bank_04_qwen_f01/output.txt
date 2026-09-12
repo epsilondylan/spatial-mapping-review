@@ -1,0 +1,12 @@
+```json
+{
+  "objects": [
+    {"id": "instance_1", "category": "chair", "bbox": [10, 280, 110, 400]},
+    {"id": "instance_2", "category": "potted plant", "bbox": [125, 295, 150, 355]},
+    {"id": "instance_3", "category": "chair", "bbox": [205, 280, 240, 380]},
+    {"id": "instance_4", "category": "sofa", "bbox": [255, 305, 450, 430]},
+    {"id": "instance_5", "category": "potted plant", "bbox": [355, 295, 380, 310]},
+    {"id": "instance_6", "category": "floor lamp", "bbox": [435, 220, 485, 410]}
+  ]
+}
+```

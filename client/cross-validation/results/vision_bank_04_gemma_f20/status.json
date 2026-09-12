@@ -1,0 +1,26 @@
+{
+  "id": "vision_bank_04_gemma_f20",
+  "kind": "vision",
+  "bank": "bank_04",
+  "reader": "gemma",
+  "repeat": 1,
+  "frames": [
+    20
+  ],
+  "status": "COMPLETE",
+  "started_at": 1789180968.3148997,
+  "requested_model": "gemma-4-31b",
+  "provider_base_url": "http://100.103.156.110:30000/v1",
+  "request_sha256": "f7a89635a8d0f11e57ac2206990b78e6141d8b03a74f39ab2ecb8ec7f52dca8e",
+  "returned_model": "gemma-4-31b",
+  "usage": {
+    "prompt_tokens": 415,
+    "total_tokens": 3493,
+    "completion_tokens": 3078,
+    "prompt_tokens_details": null,
+    "reasoning_tokens": 0
+  },
+  "finish_reason": "stop",
+  "finished_at": 1789181007.6412134,
+  "elapsed_seconds": 39.326313972473145
+}

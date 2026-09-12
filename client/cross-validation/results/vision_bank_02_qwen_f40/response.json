@@ -1,0 +1,30 @@
+{
+  "id": "9ceb927216714b93b3f9433019ef0097",
+  "object": "chat.completion",
+  "created": 1789180394,
+  "model": "qwen3.8-27b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n{\"objects\": []}\n```",
+        "reasoning_content": "The user wants me to identify objects in the image. The image is described as a 512x512 RGB image. Looking at the provided image, it appears to be completely white/blank. There are no visible objects, no floor, walls, ceiling, or anything else. It is a uniform white field.\n\nTherefore, the list of objects should be empty.\n",
+        "tool_calls": null
+      },
+      "logprobs": null,
+      "finish_reason": "stop",
+      "matched_stop": 248046
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 448,
+    "total_tokens": 540,
+    "completion_tokens": 92,
+    "prompt_tokens_details": null,
+    "reasoning_tokens": 80
+  },
+  "metadata": {
+    "weight_version": "default"
+  }
+}

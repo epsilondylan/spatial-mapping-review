@@ -1,0 +1,62 @@
+{
+  "id": "chatcmpl-202609120240462501533578268d9d6dHCRDF7l",
+  "model": "gemini-3.8-flash",
+  "object": "chat.completion",
+  "created": 1789180850,
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n{\"objects\":[{\"id\":\"instance_1\",\"category\":\"chair\",\"bbox\":[447,527,577,773]},{\"id\":\"instance_2\",\"category\":\"plant\",\"bbox\":[196,541,284,698]},{\"id\":\"instance_3\",\"category\":\"plant\",\"bbox\":[885,538,978,671]},{\"id\":\"instance_4\",\"category\":\"furniture\",\"bbox\":[0,554,36,959]},{\"id\":\"instance_5\",\"category\":\"furniture\",\"bbox\":[860,669,511,511]}]}\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1230,
+    "completion_tokens": 739,
+    "total_tokens": 1969,
+    "billing_usage": {
+      "source": "gemini_chat",
+      "semantic": "gemini",
+      "gemini_usage_metadata": {
+        "promptTokenCount": 1230,
+        "toolUsePromptTokenCount": 0,
+        "candidatesTokenCount": 150,
+        "totalTokenCount": 1969,
+        "thoughtsTokenCount": 589,
+        "cachedContentTokenCount": 0,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 141
+          },
+          {
+            "modality": "IMAGE",
+            "tokenCount": 1089
+          }
+        ],
+        "toolUsePromptTokensDetails": [],
+        "candidatesTokensDetails": []
+      }
+    },
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "text_tokens": 141,
+      "audio_tokens": 0,
+      "image_tokens": 1089
+    },
+    "completion_tokens_details": {
+      "text_tokens": 0,
+      "audio_tokens": 0,
+      "image_tokens": 0,
+      "reasoning_tokens": 589
+    },
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "input_tokens_details": null,
+    "claude_cache_creation_5_m_tokens": 0,
+    "claude_cache_creation_1_h_tokens": 0
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "objects": [
+    {
+      "id": "instance_1",
+      "category": "plant",
+      "bbox": [
+        65,
+        325,
+        195,
+        460
+      ]
+    },
+    {
+      "id": "instance_2",
+      "category": "pot",
+      "bbox": [
+        66,
+        425,
+        180,
+        511
+      ]
+    }
+  ]
+}

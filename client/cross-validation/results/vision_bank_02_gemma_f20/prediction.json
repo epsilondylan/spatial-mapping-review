@@ -1,0 +1,24 @@
+{
+  "objects": [
+    {
+      "id": "instance_1",
+      "category": "furniture",
+      "bbox": [
+        0,
+        288,
+        28,
+        511
+      ]
+    },
+    {
+      "id": "instance_2",
+      "category": "sofa",
+      "bbox": [
+        325,
+        307,
+        511,
+        511
+      ]
+    }
+  ]
+}

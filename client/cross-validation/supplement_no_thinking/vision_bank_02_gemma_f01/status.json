@@ -1,0 +1,21 @@
+{
+  "id": "vision_bank_02_gemma_f01",
+  "kind": "vision",
+  "bank": "bank_02",
+  "reader": "gemma",
+  "repeat": 1,
+  "frames": [
+    1
+  ],
+  "thinking": false,
+  "selection": "post_hoc_first_two_length_failures",
+  "status": "COMPLETE",
+  "usage": {
+    "prompt_tokens": 413,
+    "total_tokens": 569,
+    "completion_tokens": 156,
+    "prompt_tokens_details": null,
+    "reasoning_tokens": 0
+  },
+  "elapsed_seconds": 2.885629415512085
+}

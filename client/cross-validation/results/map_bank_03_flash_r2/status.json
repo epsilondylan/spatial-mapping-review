@@ -1,0 +1,113 @@
+{
+  "id": "map_bank_03_flash_r2",
+  "kind": "map",
+  "bank": "bank_03",
+  "reader": "flash",
+  "repeat": 2,
+  "frames": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40
+  ],
+  "status": "COMPLETE",
+  "transport": "native_chat_sse",
+  "selection": "transport_recovery_same_frozen_inputs",
+  "requested_model": "gemini-3.8-flash",
+  "started_at": 1789182011.9679139,
+  "received_events": 14,
+  "output_characters": 544,
+  "updated_at": 1789182162.2666905,
+  "usage": {
+    "prompt_tokens": 45430,
+    "completion_tokens": 19280,
+    "total_tokens": 64710,
+    "billing_usage": {
+      "source": "gemini_chat",
+      "semantic": "gemini",
+      "gemini_usage_metadata": {
+        "promptTokenCount": 45430,
+        "toolUsePromptTokenCount": 0,
+        "candidatesTokenCount": 215,
+        "totalTokenCount": 64710,
+        "thoughtsTokenCount": 19065,
+        "cachedContentTokenCount": 0,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 1870
+          },
+          {
+            "modality": "IMAGE",
+            "tokenCount": 43560
+          }
+        ],
+        "toolUsePromptTokensDetails": [],
+        "candidatesTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 215
+          }
+        ]
+      }
+    },
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "text_tokens": 1870,
+      "audio_tokens": 0,
+      "image_tokens": 43560
+    },
+    "completion_tokens_details": {
+      "text_tokens": 215,
+      "audio_tokens": 0,
+      "image_tokens": 0,
+      "reasoning_tokens": 19065
+    },
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "input_tokens_details": null,
+    "claude_cache_creation_5_m_tokens": 0,
+    "claude_cache_creation_1_h_tokens": 0
+  },
+  "finish_reason": "stop",
+  "returned_models": [
+    "gemini-3.8-flash"
+  ],
+  "elapsed_seconds": 150.3049190044403
+}

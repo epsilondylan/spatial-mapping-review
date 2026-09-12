@@ -1,0 +1,30 @@
+{
+  "id": "4b68d1b6735441769218743b5a4609e7",
+  "object": "chat.completion",
+  "created": 1789181068,
+  "model": "gemma-4-31b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n{\"objects\":[{\"id\":\"instance_1\",\"category\":\"lamp\",\"bbox\":[95,411,242,839]},{\"id\":\"instance_2\",\"category\":\"plant\",\"bbox\":[0,761,521,1000]}]}\n```",
+        "reasoning_content": null,
+        "tool_calls": null
+      },
+      "logprobs": null,
+      "finish_reason": "stop",
+      "matched_stop": 106
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 413,
+    "total_tokens": 478,
+    "completion_tokens": 65,
+    "prompt_tokens_details": null,
+    "reasoning_tokens": 0
+  },
+  "metadata": {
+    "weight_version": "default"
+  }
+}

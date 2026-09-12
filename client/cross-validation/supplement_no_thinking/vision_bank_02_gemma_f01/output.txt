@@ -1,0 +1,3 @@
+```json
+{"objects":[{"id":"instance_1","category":"table","bbox":[0,568,221,743]},{"id":"instance_2","category":"chair","bbox":[221,512,305,637]},{"id":"instance_3","category":"potted plant","bbox":[387,527,454,654]},{"id":"instance_4","category":"potted plant","bbox":[645,548,758,758]},{"id":"instance_5","category":"cabinet","bbox":[708,507,782,557]}]}
+```

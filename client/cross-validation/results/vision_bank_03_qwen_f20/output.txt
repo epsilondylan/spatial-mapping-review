@@ -1,0 +1,1 @@
+{"objects":[{"id":"instance_1","category":"chair","bbox":[437,528,571,872]},{"id":"instance_2","category":"plant","bbox":[185,545,274,688]},{"id":"instance_3","category":"plant","bbox":[882,542,977,668]},{"id":"instance_4","category":"table","bbox":[0,562,31,951]}]}

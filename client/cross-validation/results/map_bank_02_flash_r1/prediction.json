@@ -1,0 +1,55 @@
+{
+  "frame": "start_camera_xy",
+  "units": "meters",
+  "objects": [
+    {
+      "id": "potted_plant_1",
+      "category": "potted plant",
+      "x": -0.8,
+      "y": 5.3
+    },
+    {
+      "id": "potted_plant_2",
+      "category": "potted plant",
+      "x": 1.2,
+      "y": 3.2
+    },
+    {
+      "id": "chair_1",
+      "category": "chair",
+      "x": -2.2,
+      "y": 5.3
+    },
+    {
+      "id": "chair_2",
+      "category": "chair",
+      "x": 2.7,
+      "y": 5.1
+    },
+    {
+      "id": "table",
+      "category": "table",
+      "x": -1.8,
+      "y": 2.8
+    },
+    {
+      "id": "cabinet",
+      "category": "cabinet",
+      "x": -1.8,
+      "y": 1.1
+    },
+    {
+      "id": "sofa",
+      "category": "sofa",
+      "x": 1.7,
+      "y": 3.1
+    },
+    {
+      "id": "floor_lamp",
+      "category": "floor lamp",
+      "x": 2.7,
+      "y": 1.1
+    }
+  ],
+  "stop_reason": "readout"
+}

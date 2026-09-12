@@ -1,0 +1,30 @@
+{
+  "id": "8ae0e3f2ec93410a91a7466672d97b53",
+  "object": "chat.completion",
+  "created": 1789180657,
+  "model": "gemma-4-31b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "<|channel>thought\nThe user wants me to identify objects in a 512x512 image.\nThe image provided is a completely white square.\nThere are no visible objects, only a solid white background.\nThe instructions say to exclude floor, walls, ceiling, and structural platforms.\nSince the image is entirely white, it's likely just a wall or background, or it's an empty image.\nRegardless, there are no distinct object instances to identify.\n\nFinal check:\n- Image size: 512x512\n- Content: Solid white.\n- Objects: None.<channel|>```json\n{\"objects\":[]}\n```",
+        "reasoning_content": null,
+        "tool_calls": null
+      },
+      "logprobs": null,
+      "finish_reason": "stop",
+      "matched_stop": 106
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 415,
+    "total_tokens": 555,
+    "completion_tokens": 140,
+    "prompt_tokens_details": null,
+    "reasoning_tokens": 0
+  },
+  "metadata": {
+    "weight_version": "default"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "id": "9eca6d4533cf47629e377bca07afc0e2",
+  "object": "chat.completion",
+  "created": 1789181071,
+  "model": "gemma-4-31b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n{\"objects\":[{\"id\":\"instance_1\",\"category\":\"table\",\"bbox\":[0,568,221,743]},{\"id\":\"instance_2\",\"category\":\"chair\",\"bbox\":[221,512,305,637]},{\"id\":\"instance_3\",\"category\":\"potted plant\",\"bbox\":[387,527,454,654]},{\"id\":\"instance_4\",\"category\":\"potted plant\",\"bbox\":[645,548,758,758]},{\"id\":\"instance_5\",\"category\":\"cabinet\",\"bbox\":[708,507,782,557]}]}\n```",
+        "reasoning_content": null,
+        "tool_calls": null
+      },
+      "logprobs": null,
+      "finish_reason": "stop",
+      "matched_stop": 106
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 413,
+    "total_tokens": 569,
+    "completion_tokens": 156,
+    "prompt_tokens_details": null,
+    "reasoning_tokens": 0
+  },
+  "metadata": {
+    "weight_version": "default"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "id": "vision_bank_04_gemma_f01",
+  "kind": "vision",
+  "bank": "bank_04",
+  "reader": "gemma",
+  "repeat": 1,
+  "frames": [
+    1
+  ],
+  "status": "FAILED",
+  "started_at": 1789180859.2201686,
+  "requested_model": "gemma-4-31b",
+  "provider_base_url": "http://100.103.156.110:30000/v1",
+  "request_sha256": "c89039b631a1e6ba3c646d0d8cb3b835ac5b3a4e1345f4b0a600530aa94e2ae1",
+  "error": "ValueError:NON_FINAL_FINISH:length",
+  "finished_at": 1789180968.3121736,
+  "elapsed_seconds": 109.09200549125671
+}

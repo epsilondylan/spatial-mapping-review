@@ -1,0 +1,26 @@
+{
+  "id": "vision_bank_04_qwen_f01",
+  "kind": "vision",
+  "bank": "bank_04",
+  "reader": "qwen",
+  "repeat": 1,
+  "frames": [
+    1
+  ],
+  "status": "COMPLETE",
+  "started_at": 1789180430.9987621,
+  "requested_model": "qwen3.8-27b",
+  "provider_base_url": "http://100.103.156.111:30000/v1",
+  "request_sha256": "74253c32fecace212446b9bf3129bd56faf84b5b69c71e796f5a0981ee9e8ad4",
+  "returned_model": "qwen3.8-27b",
+  "usage": {
+    "prompt_tokens": 448,
+    "total_tokens": 1900,
+    "completion_tokens": 1452,
+    "prompt_tokens_details": null,
+    "reasoning_tokens": 1194
+  },
+  "finish_reason": "stop",
+  "finished_at": 1789180446.6190426,
+  "elapsed_seconds": 15.620280742645264
+}

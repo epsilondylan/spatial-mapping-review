@@ -1,0 +1,34 @@
+{
+  "objects": [
+    {
+      "id": "instance_1",
+      "category": "table",
+      "bbox": [
+        236,
+        304,
+        378,
+        396
+      ]
+    },
+    {
+      "id": "instance_2",
+      "category": "table",
+      "bbox": [
+        423,
+        314,
+        512,
+        380
+      ]
+    },
+    {
+      "id": "instance_3",
+      "category": "cabinet",
+      "bbox": [
+        462,
+        268,
+        512,
+        377
+      ]
+    }
+  ]
+}

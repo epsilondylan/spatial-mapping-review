@@ -1,0 +1,74 @@
+{
+  "objects": [
+    {
+      "id": "instance_1",
+      "category": "chair",
+      "bbox": [
+        14,
+        268,
+        104,
+        376
+      ]
+    },
+    {
+      "id": "instance_2",
+      "category": "potted plant",
+      "bbox": [
+        126,
+        269,
+        155,
+        321
+      ]
+    },
+    {
+      "id": "instance_3",
+      "category": "chair",
+      "bbox": [
+        205,
+        264,
+        243,
+        336
+      ]
+    },
+    {
+      "id": "instance_4",
+      "category": "plant",
+      "bbox": [
+        358,
+        269,
+        387,
+        283
+      ]
+    },
+    {
+      "id": "instance_5",
+      "category": "sofa",
+      "bbox": [
+        257,
+        283,
+        459,
+        409
+      ]
+    },
+    {
+      "id": "instance_6",
+      "category": "floor lamp",
+      "bbox": [
+        435,
+        225,
+        490,
+        372
+      ]
+    },
+    {
+      "id": "instance_7",
+      "category": "chair",
+      "bbox": [
+        0,
+        344,
+        5,
+        360
+      ]
+    }
+  ]
+}

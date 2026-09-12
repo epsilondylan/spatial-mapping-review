@@ -1,0 +1,54 @@
+{
+  "objects": [
+    {
+      "id": "instance_1",
+      "category": "lamp",
+      "bbox": [
+        45,
+        208,
+        118,
+        415
+      ]
+    },
+    {
+      "id": "instance_2",
+      "category": "sphere",
+      "bbox": [
+        118,
+        393,
+        187,
+        461
+      ]
+    },
+    {
+      "id": "instance_3",
+      "category": "sphere",
+      "bbox": [
+        142,
+        390,
+        262,
+        511
+      ]
+    },
+    {
+      "id": "instance_4",
+      "category": "cylinder",
+      "bbox": [
+        93,
+        451,
+        143,
+        511
+      ]
+    },
+    {
+      "id": "instance_5",
+      "category": "sphere",
+      "bbox": [
+        0,
+        455,
+        118,
+        511
+      ]
+    }
+  ]
+}

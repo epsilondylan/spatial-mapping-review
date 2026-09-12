@@ -1,0 +1,3 @@
+```json
+{"objects":[{"id":"instance_1","category":"table","bbox":[261,295,390,392]},{"id":"instance_2","category":"armchair","bbox":[208,382,511,511]}]}
+```

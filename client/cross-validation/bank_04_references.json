@@ -1,0 +1,152 @@
+{
+  "map": {
+    "frame": "start_camera_xy",
+    "units": "meters",
+    "objects": [
+      {
+        "id": "o0",
+        "category": "table",
+        "x": -2.446925975172082,
+        "y": 1.2853008006292939
+      },
+      {
+        "id": "o1",
+        "category": "cabinet",
+        "x": 2.791274626524424,
+        "y": 1.5900091492480037
+      },
+      {
+        "id": "o2",
+        "category": "chair",
+        "x": -2.7318016714871876,
+        "y": 3.634749829445399
+      },
+      {
+        "id": "o3",
+        "category": "floor_lamp",
+        "x": 2.9512466638335373,
+        "y": 3.6843672457809014
+      },
+      {
+        "id": "o4",
+        "category": "plant",
+        "x": -2.9081279885012576,
+        "y": 6.385550809292165
+      },
+      {
+        "id": "o5",
+        "category": "plant",
+        "x": 2.949600534867677,
+        "y": 6.435820174890854
+      },
+      {
+        "id": "o6",
+        "category": "chair",
+        "x": -0.6429292939948956,
+        "y": 5.365544786960809
+      },
+      {
+        "id": "o7",
+        "category": "sofa",
+        "x": 0.9418681648795726,
+        "y": 2.767328261842777
+      }
+    ]
+  },
+  "vision": {
+    "1": [
+      {
+        "id": "o2",
+        "category": "chair",
+        "bbox": [
+          14,
+          268,
+          103,
+          375
+        ],
+        "visible_pixels": 5601
+      },
+      {
+        "id": "o3",
+        "category": "floor_lamp",
+        "bbox": [
+          435,
+          225,
+          489,
+          371
+        ],
+        "visible_pixels": 2179
+      },
+      {
+        "id": "o4",
+        "category": "plant",
+        "bbox": [
+          126,
+          270,
+          154,
+          320
+        ],
+        "visible_pixels": 836
+      },
+      {
+        "id": "o6",
+        "category": "chair",
+        "bbox": [
+          205,
+          264,
+          242,
+          334
+        ],
+        "visible_pixels": 1261
+      },
+      {
+        "id": "o7",
+        "category": "sofa",
+        "bbox": [
+          257,
+          283,
+          458,
+          408
+        ],
+        "visible_pixels": 23807
+      }
+    ],
+    "20": [
+      {
+        "id": "o0",
+        "category": "table",
+        "bbox": [
+          234,
+          306,
+          376,
+          394
+        ],
+        "visible_pixels": 5309
+      },
+      {
+        "id": "o2",
+        "category": "chair",
+        "bbox": [
+          424,
+          269,
+          511,
+          381
+        ],
+        "visible_pixels": 5743
+      }
+    ],
+    "40": [
+      {
+        "id": "o4",
+        "category": "plant",
+        "bbox": [
+          70,
+          325,
+          203,
+          511
+        ],
+        "visible_pixels": 15141
+      }
+    ]
+  }
+}

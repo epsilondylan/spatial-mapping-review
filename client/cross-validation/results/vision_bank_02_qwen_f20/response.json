@@ -1,0 +1,30 @@
+{
+  "id": "b2561c7605a74d579d9c12219c92532f",
+  "object": "chat.completion",
+  "created": 1789180393,
+  "model": "qwen3.8-27b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[\n\t{\"bbox_2d\": [0, 289, 31, 410], \"id\": \"instance_1\", \"category\": \"cabinet\"},\n\t{\"bbox_2d\": [322, 303, 511, 511], \"id\": \"instance_2\", \"category\": \"furniture\"}\n]\n```",
+        "reasoning_content": "I will examine the image to identify visible objects, excluding the background (walls, floor, ceiling) and structural platforms.\n1.  **Left Object:** There is a brown, rectangular object visible on the far left edge. It looks like a cabinet or a side of a piece of furniture.\n    *   Bounding Box: [0, 289, 31, 410]\n2.  **Right Object:** There is a grey, stepped structure on the right side. It resembles a piece of furniture like a desk, shelf, or a set of steps.\n    *   Bounding Box: [322, 303, 511, 511]\n\nI will format these into the requested JSON structure.\n",
+        "tool_calls": null
+      },
+      "logprobs": null,
+      "finish_reason": "stop",
+      "matched_stop": 248046
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 448,
+    "total_tokens": 705,
+    "completion_tokens": 257,
+    "prompt_tokens_details": null,
+    "reasoning_tokens": 164
+  },
+  "metadata": {
+    "weight_version": "default"
+  }
+}

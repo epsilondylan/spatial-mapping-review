@@ -1,0 +1,6 @@
+```json
+[
+	{"bbox_2d": [0, 289, 31, 410], "id": "instance_1", "category": "cabinet"},
+	{"bbox_2d": [322, 303, 511, 511], "id": "instance_2", "category": "furniture"}
+]
+```

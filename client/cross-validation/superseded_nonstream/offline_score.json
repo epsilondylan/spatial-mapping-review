@@ -1,0 +1,153 @@
+{
+  "canonical": false,
+  "status": "COMPLETE",
+  "elapsed_seconds": 1342.5679593086243,
+  "metrics": {
+    "objects_pred": 8,
+    "objects_gt": 8,
+    "matched": 3,
+    "unlocalized": 0,
+    "object_precision": 0.375,
+    "object_recall": 0.375,
+    "object_f1": 0.375,
+    "pair_precision": 0.10714285714285714,
+    "pair_recall": 0.15,
+    "pair_f1": 0.125,
+    "matched_pair_accuracy": 1.0,
+    "pair_gt": 20,
+    "pair_pred": 28,
+    "pair_correct": 3,
+    "ambiguous_gt_pairs": 8,
+    "position_median": 0.2794171209147115,
+    "position_p90": 0.5113952308939661,
+    "position_rmse": 0.3947296053525875,
+    "matches": {
+      "3": 6,
+      "4": 7,
+      "7": 1
+    },
+    "pairs": [
+      {
+        "gt_a": "o0",
+        "gt_b": "o1",
+        "correct": false,
+        "both_matched": false
+      },
+      {
+        "gt_a": "o0",
+        "gt_b": "o2",
+        "correct": false,
+        "both_matched": false
+      },
+      {
+        "gt_a": "o0",
+        "gt_b": "o4",
+        "correct": false,
+        "both_matched": false
+      },
+      {
+        "gt_a": "o0",
+        "gt_b": "o5",
+        "correct": false,
+        "both_matched": false
+      },
+      {
+        "gt_a": "o1",
+        "gt_b": "o3",
+        "correct": false,
+        "both_matched": false
+      },
+      {
+        "gt_a": "o1",
+        "gt_b": "o4",
+        "correct": false,
+        "both_matched": false
+      },
+      {
+        "gt_a": "o1",
+        "gt_b": "o5",
+        "correct": false,
+        "both_matched": false
+      },
+      {
+        "gt_a": "o1",
+        "gt_b": "o6",
+        "correct": true,
+        "both_matched": true
+      },
+      {
+        "gt_a": "o1",
+        "gt_b": "o7",
+        "correct": true,
+        "both_matched": true
+      },
+      {
+        "gt_a": "o2",
+        "gt_b": "o3",
+        "correct": false,
+        "both_matched": false
+      },
+      {
+        "gt_a": "o2",
+        "gt_b": "o4",
+        "correct": false,
+        "both_matched": false
+      },
+      {
+        "gt_a": "o2",
+        "gt_b": "o6",
+        "correct": false,
+        "both_matched": false
+      },
+      {
+        "gt_a": "o2",
+        "gt_b": "o7",
+        "correct": false,
+        "both_matched": false
+      },
+      {
+        "gt_a": "o3",
+        "gt_b": "o5",
+        "correct": false,
+        "both_matched": false
+      },
+      {
+        "gt_a": "o3",
+        "gt_b": "o7",
+        "correct": false,
+        "both_matched": false
+      },
+      {
+        "gt_a": "o4",
+        "gt_b": "o5",
+        "correct": false,
+        "both_matched": false
+      },
+      {
+        "gt_a": "o4",
+        "gt_b": "o7",
+        "correct": false,
+        "both_matched": false
+      },
+      {
+        "gt_a": "o5",
+        "gt_b": "o6",
+        "correct": false,
+        "both_matched": false
+      },
+      {
+        "gt_a": "o5",
+        "gt_b": "o7",
+        "correct": false,
+        "both_matched": false
+      },
+      {
+        "gt_a": "o6",
+        "gt_b": "o7",
+        "correct": true,
+        "both_matched": true
+      }
+    ]
+  },
+  "note": "Original nonstreaming request returned after transport transition; retained as an extra diagnostic, never substituted for canonical SSE repetitions. At most one transport retry was configured."
+}

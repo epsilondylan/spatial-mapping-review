@@ -1,0 +1,65 @@
+{
+  "id": "vision_bank_04_flash_f40",
+  "kind": "vision",
+  "bank": "bank_04",
+  "reader": "flash",
+  "repeat": 1,
+  "frames": [
+    40
+  ],
+  "status": "COMPLETE",
+  "started_at": 1789180868.0154457,
+  "requested_model": "gemini-3.8-flash",
+  "provider_base_url": "http://35.220.164.252:3888/v1",
+  "request_sha256": "d16e88256911a76e883dc2d1a46cf9124fb68d779bde339707ec25f913f232ed",
+  "returned_model": "gemini-3.8-flash",
+  "usage": {
+    "prompt_tokens": 1230,
+    "completion_tokens": 598,
+    "total_tokens": 1828,
+    "billing_usage": {
+      "source": "gemini_chat",
+      "semantic": "gemini",
+      "gemini_usage_metadata": {
+        "promptTokenCount": 1230,
+        "toolUsePromptTokenCount": 0,
+        "candidatesTokenCount": 38,
+        "totalTokenCount": 1828,
+        "thoughtsTokenCount": 560,
+        "cachedContentTokenCount": 0,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 141
+          },
+          {
+            "modality": "IMAGE",
+            "tokenCount": 1089
+          }
+        ],
+        "toolUsePromptTokensDetails": [],
+        "candidatesTokensDetails": []
+      }
+    },
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "text_tokens": 141,
+      "audio_tokens": 0,
+      "image_tokens": 1089
+    },
+    "completion_tokens_details": {
+      "text_tokens": 0,
+      "audio_tokens": 0,
+      "image_tokens": 0,
+      "reasoning_tokens": 560
+    },
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "input_tokens_details": null,
+    "claude_cache_creation_5_m_tokens": 0,
+    "claude_cache_creation_1_h_tokens": 0
+  },
+  "finish_reason": "stop",
+  "finished_at": 1789180872.941696,
+  "elapsed_seconds": 4.926250457763672
+}
