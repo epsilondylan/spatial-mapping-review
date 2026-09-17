@@ -1,7 +1,7 @@
 const cache=new Map();
 export async function get(url){
  if(!cache.has(url))cache.set(url,(async()=>{
-  const compressed=url.endsWith('.json'),r=await fetch(compressed?url+'.gz':url);
+  const resource=url.startsWith('/')?new URL(url.slice(1),import.meta.url):url,compressed=url.endsWith('.json'),r=await fetch(compressed?resource+'.gz':resource);
   if(!r.ok)throw new Error('无法读取记录：'+r.status);
   if(!compressed)return r.json();
   if(typeof DecompressionStream!=='function')throw new Error('当前浏览器不支持压缩实验记录');
@@ -20,3 +20,4 @@ export const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.cl
 export const code=t=>el('pre','chat-text',typeof t==='string'?t:JSON.stringify(t,null,2));
 export function detail(label,value){const d=el('details','chat-raw');d.append(el('summary','',label),code(value));return d}
 export function reviewURL(caseId,model,mode,step,tab='output'){return '/#'+new URLSearchParams({case:caseId,model,mode,view:'calls',step,tab})}
+document.addEventListener('click',event=>{const link=event.target.closest('a[href^="/"]');if(!link||link.target)return;event.preventDefault();location.assign(new URL(link.getAttribute('href').slice(1),import.meta.url))});

@@ -5,7 +5,8 @@ const caseGroups=[['common','同轨迹 · 读取对照'],['active','Claude Code 
 const caseKinds={common:'同轨迹 · 读取对照',active:'模型自主探索 · 完整调用记录',supplement:'补充实验 · 条件不可混比',baseline:'工具审计 · 非空环境建图基线'};
 const state={index:null,case:null,run:null,view:'calls',step:0,detail:null,tab:'thinking',image:0,load:0,scope:null,model:'flash',mode:'full'};
 const cache=new Map(),notes=new Map();let saveTimer;
-const get=async u=>{if(cache.has(u))return cache.get(u);const compressed=u.endsWith('.json'),r=await fetch(compressed?u+'.gz':u);if(!r.ok)throw new Error('无法读取记录：'+r.status);if(compressed&&typeof DecompressionStream!=='function')throw new Error('当前浏览器不支持压缩实验记录');const d=compressed?await new Response(r.body.pipeThrough(new DecompressionStream('gzip'))).json():await r.json();cache.set(u,d);return d};
+document.addEventListener('click',event=>{const link=event.target.closest('a[href^="/"]');if(!link||link.target)return;event.preventDefault();location.assign(new URL(link.getAttribute('href').slice(1),import.meta.url))});
+const get=async u=>{if(cache.has(u))return cache.get(u);const resource=u.startsWith('/')?new URL(u.slice(1),import.meta.url):u,compressed=u.endsWith('.json'),r=await fetch(compressed?resource+'.gz':resource);if(!r.ok)throw new Error('无法读取记录：'+r.status);if(compressed&&typeof DecompressionStream!=='function')throw new Error('当前浏览器不支持压缩实验记录');const d=compressed?await new Response(r.body.pipeThrough(new DecompressionStream('gzip'))).json():await r.json();cache.set(u,d);return d};
 async function getRequest(url){
  const data=await get(url);if(data.format!=='spatial-blocks-v1')return data;
  const ids=data.payload.messages.map(m=>m.$block);if(data.payload.tools?.$block)ids.push(data.payload.tools.$block);
