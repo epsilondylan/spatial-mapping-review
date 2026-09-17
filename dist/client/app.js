@@ -1,6 +1,8 @@
 const $=s=>document.querySelector(s), el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n};
-const modelNames={qwen:'Qwen 3.8 · 27B',gemma:'Gemma 4 · 31B',flash:'Gemini 3.8 Flash',astra:'GPT‑6 Astra',luna:'GPT‑5.6 Luna',opus:'Claude Opus 5'};
-const modeNames={full:'完整RGB · 允许思考',last8:'最近8图 · 允许思考',full_nothink:'完整RGB · 关闭思考',caption:'逐图描述记忆',caption_latest1:'描述记忆 + 末帧',claude_last8:'Claude Code · 最近8图',codex_last8:'Codex · 最近8图'};
+const modelNames={qwen:'Qwen 3.8 · 27B',gemma:'Gemma 4 · 31B',flash:'Gemini 3.8 Flash',astra:'GPT‑6 Astra',luna:'GPT‑5.6 Luna',spatialclaw:'SpatialClaw tools + Codex',opus:'Claude Opus 5'};
+const modeNames={full:'完整RGB · 允许思考',last8:'最近8图 · 允许思考',full_nothink:'完整RGB · 关闭思考',caption:'逐图描述记忆',caption_latest1:'描述记忆 + 末帧',claude_last8:'Claude Code · 最近8图',codex_last8:'Codex · 最近8图',active_full_rgb:'真实主动探索 · 全部RGB',static_exact4:'四视角盲测 · 精确位姿',tool_audit:'工具审计 · 封存面板'};
+const caseGroups=[['common','同轨迹 · 读取对照'],['active','Claude Code · 自主探索'],['supplement','新版多房间 · 条件分开记录'],['baseline','SpatialClaw · 工具审计']];
+const caseKinds={common:'同轨迹 · 读取对照',active:'模型自主探索 · 完整调用记录',supplement:'补充实验 · 条件不可混比',baseline:'工具审计 · 非空环境建图基线'};
 const state={index:null,case:null,run:null,view:'calls',step:0,detail:null,tab:'thinking',image:0,load:0,scope:null,model:'flash',mode:'full'};
 const cache=new Map(),notes=new Map();let saveTimer;
 const get=async u=>{if(cache.has(u))return cache.get(u);const compressed=u.endsWith('.json'),r=await fetch(compressed?u+'.gz':u);if(!r.ok)throw new Error('无法读取记录：'+r.status);if(compressed&&typeof DecompressionStream!=='function')throw new Error('当前浏览器不支持压缩实验记录');const d=compressed?await new Response(r.body.pipeThrough(new DecompressionStream('gzip'))).json():await r.json();cache.set(u,d);return d};
@@ -18,17 +20,18 @@ function download(name,obj){const u=URL.createObjectURL(new Blob([typeof obj==='
 function imageNode(src,cls=''){const n=el('img',cls);n.src=src;n.alt='模型收到的原始RGB';n.loading='lazy';n.onclick=()=>{$('#large-image').src=src;$('#image-dialog').showModal()};return n}
 function listCases(){
  const box=$('#case-list');clear(box);const query=$('#case-search').value.trim();
- for(const [kind,label] of [['common','同轨迹 · 读取对照'],['active','Claude Code · 自主探索']]){
+ for(const [kind,label] of caseGroups){
+  const cases=state.index.cases.filter(c=>c.kind===kind&&c.title.includes(query));if(!cases.length)continue;
   box.append(el('div','group-label',label));
-  for(const c of state.index.cases.filter(c=>c.kind===kind&&c.title.includes(query))){
-   const b=el('button','case-button'+(state.case?.id===c.id?' active':''));b.append(el('strong','',c.title),el('small','',kind==='common'?'同图同动作 · 对照分析':c.runs.filter(r=>r.model!=='opus').map(r=>({qwen:'Qwen',gemma:'Gemma',flash:'Flash',astra:'Astra',luna:'Luna'})[r.model]||r.model).join(' / ')));b.onclick=()=>selectCase(c.id);box.append(b);
+  for(const c of cases){
+   const b=el('button','case-button'+(state.case?.id===c.id?' active':''));const detail=kind==='common'?'同图同动作 · 对照分析':kind==='baseline'?'已打包证据 · 非地图比较':c.runs.filter(r=>r.model!=='opus').map(r=>({qwen:'Qwen',gemma:'Gemma',flash:'Flash',astra:'Astra',luna:'Luna',spatialclaw:'SpatialClaw'})[r.model]||r.model).join(' / ');b.append(el('strong','',c.title),el('small','',detail));b.onclick=()=>selectCase(c.id);box.append(b);
   }
  }
 }
 async function selectCase(id,restore={}){
  if(state.scope)saveNote(state.scope);state.case=state.index.cases.find(c=>c.id===id)||state.index.cases[0];state.model=restore.model||state.model;state.mode=restore.mode||state.mode;
  const models=[...new Set(state.case.runs.filter(r=>r.model!=='opus').map(r=>r.model))];if(!models.includes(state.model))state.model=models[0];
- $('#case-kind').textContent=state.case.kind==='common'?'同轨迹 · 三模型读取对照':'模型自主探索 · 完整调用记录';$('#case-title').textContent=state.case.title;
+ $('#case-kind').textContent=caseKinds[state.case.kind]||state.case.kind;$('#case-title').textContent=state.case.title;
  clear($('#models'));for(const m of models){const b=el('button',m===state.model?'selected':'',modelNames[m]);b.onclick=()=>selectCase(state.case.id,{model:m,mode:state.mode});$('#models').append(b)}
  const runs=state.case.runs.filter(r=>r.model===state.model&&r.model!=='opus');if(!runs.some(r=>r.mode===state.mode))state.mode=runs[0].mode;
  clear($('#mode-select'));for(const r of runs){const o=el('option','',modeNames[r.mode]||r.mode);o.value=r.mode;$('#mode-select').append(o)}$('#mode-select').value=state.mode;
@@ -42,10 +45,11 @@ async function selectCase(id,restore={}){
  }catch(e){$('#stage-body').replaceChildren(notice(e.message))}
 }
 function items(){return state.run?(state.view==='calls'?state.run.calls:state.run.frames):[]}
+function frameDesc(frame){const receipt=frame.receipt||{},action=receipt.requested_action;if(action)return `转${action.turn_deg}° · 移动${action.move_m}m`;return receipt.label||receipt.status||'保存的观察记录'}
 function renderTimeline(){
  $('#calls-view').className=state.view==='calls'?'selected':'';$('#frames-view').className=state.view==='frames'?'selected':'';
  $('#timeline-search').placeholder=state.view==='calls'?'搜索思考开头 / 工具…':'输入帧号…';clear($('#timeline-list'));const q=$('#timeline-search').value.toLowerCase();
- items().forEach((s,i)=>{const label=state.view==='calls'?(s.budget?`${s.budget}帧读取`:`调用 ${i+1}`):`第 ${s.id} 帧`;const desc=state.view==='calls'?s.label:`转${s.receipt.requested_action.turn_deg}° · 移动${s.receipt.requested_action.move_m}m`;if(q&&!`${label} ${desc} ${s.preview||''}`.toLowerCase().includes(q))return;
+ items().forEach((s,i)=>{const label=state.view==='calls'?(s.budget?`${s.budget}帧读取`:`调用 ${i+1}`):`第 ${s.id} 帧`;const desc=state.view==='calls'?s.label:frameDesc(s);if(q&&!`${label} ${desc} ${s.preview||''}`.toLowerCase().includes(q))return;
   const b=el('button','step-item'+(i===state.step?' active':''));b.append(el('span','',label),el('small','',desc));if(s.status==='FAILED')b.append(el('small','failure-dot','协议/接口失败'));b.onclick=()=>selectStep(i);$('#timeline-list').append(b);
  });
 }
@@ -54,7 +58,7 @@ async function selectStep(i){
  state.step=Math.max(0,Math.min(i,items().length-1));state.image=0;state.detail=null;renderTimeline();const s=items()[state.step];
  state.scope=state.view==='calls'?`call:${s.id}`:`frame:${state.run.id}:${s.id}`;loadNote(state.scope);
  $('#step-kicker').textContent=state.view==='calls'?`模型调用 ${state.step+1} / ${items().length}`:`观察帧 ${s.id} / ${items().length}`;
- $('#step-title').textContent=state.view==='calls'?s.label:`第 ${s.id} 帧 · ${s.receipt.status}`;$('#prev-step').disabled=state.step===0;$('#next-step').disabled=state.step===items().length-1;
+ $('#step-title').textContent=state.view==='calls'?s.label:`第 ${s.id} 帧 · ${(s.receipt||{}).status||'已保存'}`;$('#prev-step').disabled=state.step===0;$('#next-step').disabled=state.step===items().length-1;
  const url=new URL(location.href);url.hash=new URLSearchParams({case:state.case.id,model:state.model,mode:state.mode,view:state.view,step:state.step,tab:state.tab}).toString();history.replaceState(null,'',url);
  $('#stage-body').replaceChildren(el('div','skeleton','正在载入…'));const token=++state.load;
  if(state.view==='frames'){state.detail=s;renderFrame(s);researchNotes(s.evaluation);renderReference(s.reference);return}
@@ -70,12 +74,14 @@ function gallery(box,images){
 function renderCall(d){
  const box=$('#stage-body');clear(box);
  if(state.run.kind==='common')box.append(notice(`这是${d.budget}帧历史的一次整段读取。下面的思考/回答属于这次调用；采集动作来自脚本，不是模型逐帧选择。`,true));
+ if(state.run.kind==='static')box.append(notice('这是一项固定四视角盲测：模型没有选择观察位置或移动。任务包的重建来源已在“完整输入”中标注。',true));
+ if(state.run.kind==='baseline')box.append(notice('这是一项 SpatialClaw 工具审计。面板和封存答案用于检查工具/状态流程，不构成空房间主动建图的公平比较。',true));
  if(d.status==='FAILED')box.append(notice('协议/接口失败：'+(d.error||'详见记录')+'。原文保留；正式评分不可当作成功。'));
  const mediaBox=el('div');mediaBox.style.marginTop='14px';box.append(mediaBox);gallery(mediaBox,d.images);
  const tabs=el('div','tabs');for(const [id,label] of [['thinking','返回的思考'],['output','工具与回答'],['input','完整输入'],['map','地图与指标']]){const b=el('button',state.tab===id?'active':'',label);b.onclick=()=>{state.tab=id;const h=new URLSearchParams(location.hash.slice(1));h.set('tab',id);history.replaceState(null,'','#'+h);renderCall(d)};tabs.append(b)}box.append(tabs);
  const pane=el('div');box.append(pane);const usage=d.usage||{};
  if(state.tab==='thinking'){
-  if(d.thinking){pane.append(el('div','status-line',`${d.reasoning_visibility==='summary_only'?'以下是服务返回的推理摘要，不是完整内部思考':'以下是模型实际返回的分析文本'}，共 ${d.thinking.length.toLocaleString()} 字符；不是研究者推测。`));const p=code(d.thinking);p.classList.add('thought');pane.append(p)}
+  if(d.thinking){const provenance=d.reasoning_visibility==='summary_only'?'以下是服务返回的推理摘要，不是完整内部思考':d.reasoning_visibility==='self_report'?'以下是该盲测子代理保存的书面说明，不是服务商返回的隐藏思考':'以下是模型实际返回的分析文本';pane.append(el('div','status-line',`${provenance}，共 ${d.thinking.length.toLocaleString()} 字符；不是研究者推测。`));const p=code(d.thinking);p.classList.add('thought');pane.append(p)}
   else{const empty=el('div','empty-state');empty.append(el('strong','',state.model==='flash'?'Flash接口未返回思考正文':'本次没有返回思考正文'));const n=usage.completion_tokens_details?.reasoning_tokens??usage.reasoning_tokens;empty.append(document.createTextNode(state.model==='flash'?`服务报告${n?.toLocaleString()??'未知'}个思考tokens，但只保存到最终回答。这里不会补写或猜测内部过程。`:'可继续查看完整输入、工具请求和最终回答；没有思考文本不等于确认模型没有思考。'));pane.append(empty)}
   pane.append(el('div','status-line',`输入tokens：${usage.prompt_tokens?.toLocaleString()??'未报告'} · 输出tokens（含思考）：${usage.completion_tokens?.toLocaleString()??'未报告'} · 结束原因：${d.finish_reason??'接口错误'}`));
  }else if(state.tab==='output'){
@@ -85,13 +91,13 @@ function renderCall(d){
  }else if(state.tab==='input')renderInput(pane,d);
  else{
   if(d.prediction){pane.append(notice('坐标图只画原始数值，不做对齐/缩放修正。格式失败记录仅供诊断。',true));pane.append(mapSVG(d.prediction));pane.append(code(d.prediction))}
-  else pane.append(el('div','empty-state','这次调用没有独立的最终地图。自主探索中的地图写入可在工具请求及后续读取回执中查看。'));
+  else pane.append(el('div','empty-state',state.run.kind==='baseline'?'本审计不产生空间地图；请查看封存动作答案、工具链与离线核查。':'这次调用没有独立的最终地图。自主探索中的地图写入可在工具请求及后续读取回执中查看。'));
   if(d.metrics){const small=Object.fromEntries(Object.entries(d.metrics).filter(([k])=>!['pairs','matches'].includes(k)));const det=el('details','request-message');det.append(el('summary','','离线评分（不是模型输入）'),code(small));pane.append(det)}
  }
- const dl=el('div','download-row');const b=el('button','','下载本次完整记录 ↓');b.onclick=async()=>download(d.id+'.json',{...d,request:await getRequest(d.request_url),note:'图像URL指向同字节文件；思考正文仅来自服务实际返回。'});dl.append(b);box.append(dl);
+ const dl=el('div','download-row');const b=el('button','','下载本次完整记录 ↓');b.onclick=async()=>download(d.id+'.json',{...d,request:await getRequest(d.request_url),note:d.reasoning_visibility==='self_report'?'图像URL指向同字节文件；书面说明来自保存的盲测子代理输出。':'图像URL指向同字节文件；思考正文仅来自服务实际返回。'});dl.append(b);box.append(dl);
 }
 async function renderInput(pane,d){
- pane.append(notice('展示真正发给模型的输入，含历史消息与工具定义。图像数据转为本站同字节文件链接；旧图移除标记按原样保留。',true));
+ pane.append(notice(d.request_fidelity?`此记录的输入来源：${d.request_fidelity}`:'展示真正发给模型的输入，含历史消息与工具定义。图像数据转为本站同字节文件链接；旧图移除标记按原样保留。',true));
  const wait=el('div','skeleton','载入完整上下文…');pane.append(wait);
  try{const req=await getRequest(d.request_url);if(state.detail?.id!==d.id||state.tab!=='input')return;wait.remove();
   const conf=el('details','request-message');conf.append(el('summary','','请求设置与工具定义'),code(Object.fromEntries(Object.entries(req).filter(([k])=>k!=='messages'))));pane.append(conf);
@@ -102,9 +108,9 @@ async function renderInput(pane,d){
  }catch(e){wait.textContent=e.message}
 }
 function renderFrame(f){
- const box=$('#stage-body');clear(box);if(state.run.kind==='common')box.append(notice('脚本采集的观察帧；模型没有在这一帧单独作答。请切回“模型调用”查看整段历史读取后的回答。',true));
+ const box=$('#stage-body');clear(box);if(state.run.kind==='common')box.append(notice('脚本采集的观察帧；模型没有在这一帧单独作答。请切回“模型调用”查看整段历史读取后的回答。',true));if(state.run.kind==='static')box.append(notice('固定盲测视角：模型没有请求或执行本帧。',true));if(state.run.kind==='baseline')box.append(notice('公开审计面板：不是模型在环境中主动取得的观察。',true));
  const mediaBox=el('div');mediaBox.style.marginTop='14px';gallery(mediaBox,[f.image]);box.append(mediaBox);box.append(el('div','subheading','公开执行回执（模型可获得）'),code(f.receipt));
- const description=el('p','hint','请求位移可能因碰撞而未完全执行。这里只展示实际保存的回执，不把请求值解释为测得的真实位移。');box.append(description);
+ const description=el('p','hint',(f.receipt||{}).requested_action?'请求位移可能因碰撞而未完全执行。这里只展示实际保存的回执，不把请求值解释为测得的真实位移。':'该记录没有环境移动回执；它是固定输入或审计面板。');box.append(description);
 }
 function researchNotes(list){const box=$('#research-notes');clear(box);for(const n of list||[]){const p=el('div','review-note '+n.kind);p.append(el('span','label',({fact:'可核对的事实',limit:'记录限制',finding:'人工案例核查',warning:'协议/接口问题'})[n.kind]||'评价'),document.createTextNode(n.text));box.append(p)}}
 function mapSVG(pred){

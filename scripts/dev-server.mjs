@@ -1,5 +1,5 @@
 import http from 'node:http';import fs from 'node:fs/promises';import path from 'node:path';import worker from '../worker/index.mjs';import {sqliteBinding} from './local-db.mjs';
-await fs.mkdir('.local',{recursive:true});const root=path.resolve('public');const DB=sqliteBinding('.local/notes.sqlite');
+await fs.mkdir('.local',{recursive:true});const root=path.resolve(process.env.REVIEW_ASSETS_DIR||'client');const DB=sqliteBinding('.local/notes.sqlite');
 const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json; charset=utf-8','.png':'image/png','.jpg':'image/jpeg'};
 const env={DB,ASSETS:{async fetch(request){
  const name=decodeURIComponent(new URL(request.url).pathname);const p=path.resolve(root,'.'+name);

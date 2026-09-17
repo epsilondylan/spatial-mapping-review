@@ -2,8 +2,9 @@ import {get,getRequest,el,code,detail,reviewURL} from './evidence.js';
 import {mountNotes} from './chat-notes.js';
 import {conversationWindow} from './transcript.js';
 const $=s=>document.querySelector(s),params=new URLSearchParams(location.search),hash=new URLSearchParams(location.hash.slice(1));
-const names={qwen:'Qwen 3.8 · 27B',gemma:'Gemma 4 · 31B',flash:'Gemini 3.8 Flash',astra:'GPT‑6 Astra',luna:'GPT‑5.6 Luna',opus:'Claude Opus 5'};
-const modes={full:'完整RGB · 允许思考',last8:'最近8图 · 允许思考',full_nothink:'完整RGB · 关闭思考',caption:'逐图描述记忆',caption_latest1:'描述记忆 + 末帧',claude_last8:'Claude Code · 最近8图',codex_last8:'Codex · 最近8图'};
+const names={qwen:'Qwen 3.8 · 27B',gemma:'Gemma 4 · 31B',flash:'Gemini 3.8 Flash',astra:'GPT‑6 Astra',luna:'GPT‑5.6 Luna',spatialclaw:'SpatialClaw tools + Codex',opus:'Claude Opus 5'};
+const modes={full:'完整RGB · 允许思考',last8:'最近8图 · 允许思考',full_nothink:'完整RGB · 关闭思考',caption:'逐图描述记忆',caption_latest1:'描述记忆 + 末帧',claude_last8:'Claude Code · 最近8图',codex_last8:'Codex · 最近8图',active_full_rgb:'真实主动探索 · 全部RGB',static_exact4:'四视角盲测 · 精确位姿',tool_audit:'工具审计 · 封存面板'};
+const kindNames={common:'固定轨迹对照',active:'自主探索',static:'固定四视角盲测',baseline:'SpatialClaw 工具审计'};
 let run,caseInfo,sections=[],selected=0,observer,view=params.get('view')==='requests'?'requests':'conversation';
 function setHash(i,focus='call'){history.replaceState(null,'','#'+new URLSearchParams({call:i,focus}))}
 function image(src){const img=el('img','chat-image');img.src=src;img.loading='lazy';img.alt='本条消息中的模型输入图像';img.onclick=()=>{$('#chat-large-image').src=src;$('#chat-image-dialog').showModal()};return img}
@@ -49,7 +50,7 @@ async function loadCall(i){
   s.content.append(el('p','chat-call-status',`实际请求：${req.messages.length} 条消息 · ${d.images.length} 张图像。${view==='conversation'?'连续对话展示最近 assistant 之后的输入；重发历史保留在折叠区，系统指令变化单独展示。':'完整展示本次实际发送的全部消息，包括重发历史。'}`));
   renderInputs(s,req,previous,i);
   const reply=el('div','chat-event outgoing chat-answer');reply.id='reply-'+i;reply.dataset.role='assistant';const bubble=el('div','chat-bubble');bubble.append(el('div','chat-role',`assistant · ${names[run.model]} · 本次实际返回`));
-  if(d.thinking){const thinking=el('details','chat-thinking');thinking.append(el('summary','',d.reasoning_visibility==='summary_only'?'reasoning · 服务返回的推理摘要（展开）':'reasoning · 接口返回的思考正文（展开）'));const t=code(d.thinking);t.classList.add('chat-reasoning');thinking.append(t);bubble.append(thinking)}
+  if(d.thinking){const thinking=el('details','chat-thinking');const label=d.reasoning_visibility==='summary_only'?'reasoning · 服务返回的推理摘要（展开）':d.reasoning_visibility==='self_report'?'书面说明 · 保存的盲测子代理说明（展开）':'reasoning · 接口返回的思考正文（展开）';thinking.append(el('summary','',label));const t=code(d.thinking);t.classList.add('chat-reasoning');thinking.append(t);bubble.append(thinking)}
   bubble.append(el('div','chat-reply-label','完整输出正文'));const answer=code(d.answer||'（没有普通回答正文；请查看工具请求和原始响应）');answer.classList.add('complete-answer');bubble.append(answer);
   if(d.tools?.length){bubble.append(el('div','chat-block-label','工具请求 · 执行情况见后续回执'));d.tools.forEach(t=>bubble.append(toolRequest(t)))}
   bubble.append(el('p','hint',`结束原因：${d.finish_reason??'未报告'} · 模型调用 ${i+1}`),detail('原始服务响应（完整 JSON）',d.response));
@@ -66,12 +67,12 @@ $('#show-chat-controls').onclick=e=>{e.preventDefault();window.scrollTo({top:0,b
 $('#chat-close-image').onclick=()=>$('#chat-image-dialog').close();$('#jump-output').onclick=()=>jump(Number($('#jump-call').value),'reply');$('#jump-call').onchange=()=>jump(Number($('#jump-call').value));
 try{
  const idx=await get('/data/index.json');$('#chat-snapshot').textContent='记录快照 · '+new Date(idx.snapshot_at).toLocaleString('zh-CN',{timeZone:'Asia/Hong_Kong',hour12:false});
- const choices=idx.cases.flatMap(c=>c.runs.filter(r=>r.model!=='opus').map(r=>({c,r}))).sort((a,b)=>Number(b.c.id.startsWith('active-'))-Number(a.c.id.startsWith('active-')));const chosen=choices.find(x=>x.r.id===params.get('run'))||choices.find(x=>x.r.id==='active-91105-flash')||choices.find(x=>x.c.id.startsWith('active-')&&x.r.model==='flash')||choices[0];
+ const choices=idx.cases.flatMap(c=>c.runs.map(r=>({c,r}))).sort((a,b)=>a.c.title.localeCompare(b.c.title,'zh-CN'));const chosen=choices.find(x=>x.r.id===params.get('run'))||choices.find(x=>x.r.id==='multiroom-distinct-95516-flash')||choices.find(x=>x.r.id==='active-91105-flash')||choices[0];
  caseInfo=chosen.c;run=await get(chosen.r.manifest);document.title=`${caseInfo.title} · ${names[run.model]} · 完整对话`;
- for(const {c,r} of choices){const o=el('option','',`${c.id.startsWith('active-')?'自主探索':'固定轨迹对照'} · ${c.title} / ${names[r.model]} / ${modes[r.mode]||r.mode}`);o.value=r.id;$('#trajectory').append(o)}$('#trajectory').value=run.id;$('#trajectory').onchange=()=>{location.href='/chat.html?'+new URLSearchParams({run:$('#trajectory').value,view})};
+ for(const {c,r} of choices){const o=el('option','',`${kindNames[c.kind]||c.kind} · ${c.title} / ${names[r.model]} / ${modes[r.mode]||r.mode}`);o.value=r.id;$('#trajectory').append(o)}$('#trajectory').value=run.id;$('#trajectory').onchange=()=>{location.href='/chat.html?'+new URLSearchParams({run:$('#trajectory').value,view})};
  $('#transcript-view').value=view;$('#transcript-view').onchange=()=>{location.href='/chat.html?'+new URLSearchParams({run:run.id,view:$('#transcript-view').value})+'#'+new URLSearchParams({call:selected})};
  $('#chat-title').textContent=`${caseInfo.title} · ${names[run.model]}`;
- $('#chat-description').textContent=run.kind==='common'?'固定轨迹对照：动作由采集脚本产生，模型在检查点读取历史并输出地图。':`自主探索 · ${['astra','luna'].includes(run.model)?'Codex':'Claude Code'}：模型决定转向、移动、读取哪张图片和如何记录地图。右侧是模型实际返回的回答与工具请求，左侧是框架输入及后续环境回执；工具请求是否执行以回执为准。`;
+ $('#chat-description').textContent=run.kind==='common'?'固定轨迹对照：动作由采集脚本产生，模型在检查点读取历史并输出地图。':run.kind==='static'?'固定四视角盲测：Luna 只收到预先选定的 RGB 与精确位姿，没有选择观察位置或移动。':run.kind==='baseline'?'SpatialClaw 工具审计：这里保存的是公开面板与封存输出，用于审查工具/状态链路；不应当作空环境主动建图轨迹。':`自主探索 · ${['astra','luna'].includes(run.model)?'Codex':'Claude Code'}：模型决定转向、移动、读取哪张图片和如何记录地图。右侧是模型实际返回的回答与工具请求，左侧是框架输入及后续环境回执；工具请求是否执行以回执为准。`;
  const conversation=$('#conversation');selected=Math.max(0,Math.min(Number(hash.get('call'))||0,run.calls.length-1));
  run.calls.forEach((c,i)=>{const node=el('section','chat-call'),heading=el('div','chat-call-heading'),content=el('div','chat-call-content');node.id='call-'+i;
   heading.append(el('h2','',`调用 ${i+1} · ${c.label}`));const output=el('button','','完整回答 ↓'),review=el('button','','评价本次调用');output.onclick=()=>jump(i,'reply');review.onclick=async()=>{selected=i;setHash(i);try{selectEvaluation(i,await loadCall(i));if(innerWidth<=1000)$('#annotation').scrollIntoView({block:'center'})}catch{}};heading.append(output,review);node.append(heading,content);content.append(el('div','chat-load-placeholder',`调用 ${i+1} · 滚动到这里自动载入完整消息`));conversation.append(node);sections.push({node,content,promise:null});const o=el('option','',`${i+1} · ${c.label}`);o.value=String(i);$('#jump-call').append(o);
