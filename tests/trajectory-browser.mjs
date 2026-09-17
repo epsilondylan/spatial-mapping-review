@@ -18,6 +18,7 @@ try {
 
   await page.goto(base + '/#case=multiroom-distinct-95516&model=flash&mode=active_full_rgb&view=calls&step=0&tab=output', {waitUntil:'domcontentloaded'});
   await page.waitForFunction(() => document.querySelector('#run-description')?.textContent.includes('17 次调用'));
+  await page.waitForFunction(() => document.querySelector('#stage-body')?.textContent.includes('exploration_operation'));
   if (!(await page.locator('#stage-body').innerText()).includes('exploration_operation')) throw new Error('Flash operation missing');
   await page.click('#frames-view');
   await page.waitForFunction(() => document.querySelector('#step-title')?.textContent.includes('第 1 帧'));
