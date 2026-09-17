@@ -1,3 +1,4 @@
+import {renderTrajectoryReview} from './trajectory-map.js';
 const $=s=>document.querySelector(s), el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n};
 const modelNames={qwen:'Qwen 3.8 · 27B',gemma:'Gemma 4 · 31B',flash:'Gemini 3.8 Flash',astra:'GPT‑6 Astra',luna:'GPT‑5.6 Luna',spatialclaw:'SpatialClaw tools + Codex',opus:'Claude Opus 5'};
 const modeNames={full:'完整RGB · 允许思考',last8:'最近8图 · 允许思考',full_nothink:'完整RGB · 关闭思考',caption:'逐图描述记忆',caption_latest1:'描述记忆 + 末帧',claude_last8:'Claude Code · 最近8图',codex_last8:'Codex · 最近8图',active_full_rgb:'真实主动探索 · 全部RGB',static_exact4:'四视角盲测 · 精确位姿',tool_audit:'工具审计 · 封存面板'};
@@ -5,7 +6,8 @@ const caseGroups=[['common','同轨迹 · 读取对照'],['active','Claude Code 
 const caseKinds={common:'同轨迹 · 读取对照',active:'模型自主探索 · 完整调用记录',supplement:'补充实验 · 条件不可混比',baseline:'工具审计 · 非空环境建图基线'};
 const state={index:null,case:null,run:null,view:'calls',step:0,detail:null,tab:'thinking',image:0,load:0,scope:null,model:'flash',mode:'full'};
 const cache=new Map(),notes=new Map();let saveTimer;
-const get=async u=>{if(cache.has(u))return cache.get(u);const compressed=u.endsWith('.json'),r=await fetch(compressed?u+'.gz':u);if(!r.ok)throw new Error('无法读取记录：'+r.status);if(compressed&&typeof DecompressionStream!=='function')throw new Error('当前浏览器不支持压缩实验记录');const d=compressed?await new Response(r.body.pipeThrough(new DecompressionStream('gzip'))).json():await r.json();cache.set(u,d);return d};
+document.addEventListener('click',event=>{const link=event.target.closest('a[href^="/"]');if(!link||link.target)return;event.preventDefault();location.assign(new URL(link.getAttribute('href').slice(1),import.meta.url))});
+const get=async u=>{if(cache.has(u))return cache.get(u);const resource=u.startsWith('/')?new URL(u.slice(1),import.meta.url):u,compressed=u.endsWith('.json'),r=await fetch(compressed?resource+'.gz':resource);if(!r.ok)throw new Error('无法读取记录：'+r.status);if(compressed&&typeof DecompressionStream!=='function')throw new Error('当前浏览器不支持压缩实验记录');const d=compressed?await new Response(r.body.pipeThrough(new DecompressionStream('gzip'))).json():await r.json();cache.set(u,d);return d};
 async function getRequest(url){
  const data=await get(url);if(data.format!=='spatial-blocks-v1')return data;
  const ids=data.payload.messages.map(m=>m.$block);if(data.payload.tools?.$block)ids.push(data.payload.tools.$block);
@@ -78,7 +80,7 @@ function renderCall(d){
  if(state.run.kind==='baseline')box.append(notice('这是一项 SpatialClaw 工具审计。面板和封存答案用于检查工具/状态流程，不构成空房间主动建图的公平比较。',true));
  if(d.status==='FAILED')box.append(notice('协议/接口失败：'+(d.error||'详见记录')+'。原文保留；正式评分不可当作成功。'));
  const mediaBox=el('div');mediaBox.style.marginTop='14px';box.append(mediaBox);gallery(mediaBox,d.images);
- const tabs=el('div','tabs');for(const [id,label] of [['thinking','返回的思考'],['output','工具与回答'],['input','完整输入'],['map','地图与指标']]){const b=el('button',state.tab===id?'active':'',label);b.onclick=()=>{state.tab=id;const h=new URLSearchParams(location.hash.slice(1));h.set('tab',id);history.replaceState(null,'','#'+h);renderCall(d)};tabs.append(b)}box.append(tabs);
+ const tabs=el('div','tabs');for(const [id,label] of [['thinking','返回的思考'],['output','工具与回答'],['input','完整输入'],['map','地图、轨迹与GT']]){const b=el('button',state.tab===id?'active':'',label);b.onclick=()=>{state.tab=id;const h=new URLSearchParams(location.hash.slice(1));h.set('tab',id);history.replaceState(null,'','#'+h);renderCall(d)};tabs.append(b)}box.append(tabs);
  const pane=el('div');box.append(pane);const usage=d.usage||{};
  if(state.tab==='thinking'){
   if(d.thinking){const provenance=d.reasoning_visibility==='summary_only'?'以下是服务返回的推理摘要，不是完整内部思考':d.reasoning_visibility==='self_report'?'以下是该盲测子代理保存的书面说明，不是服务商返回的隐藏思考':'以下是模型实际返回的分析文本';pane.append(el('div','status-line',`${provenance}，共 ${d.thinking.length.toLocaleString()} 字符；不是研究者推测。`));const p=code(d.thinking);p.classList.add('thought');pane.append(p)}
@@ -93,6 +95,7 @@ function renderCall(d){
   if(d.prediction){pane.append(notice('坐标图只画原始数值，不做对齐/缩放修正。格式失败记录仅供诊断。',true));pane.append(mapSVG(d.prediction));pane.append(code(d.prediction))}
   else pane.append(el('div','empty-state',state.run.kind==='baseline'?'本审计不产生空间地图；请查看封存动作答案、工具链与离线核查。':'这次调用没有独立的最终地图。自主探索中的地图写入可在工具请求及后续读取回执中查看。'));
   if(d.metrics){const small=Object.fromEntries(Object.entries(d.metrics).filter(([k])=>!['pairs','matches'].includes(k)));const det=el('details','request-message');det.append(el('summary','','离线评分（不是模型输入）'),code(small));pane.append(det)}
+  renderTrajectoryReview(pane,state.run,{load:get,onSelectFrame:frameId=>{const frameIndex=state.run.frames.findIndex(frame=>frame.id===frameId);if(frameIndex<0)return;state.view='frames';state.step=frameIndex;$('#timeline-search').value='';renderTimeline();selectStep(frameIndex)}})
  }
  const dl=el('div','download-row');const b=el('button','','下载本次完整记录 ↓');b.onclick=async()=>download(d.id+'.json',{...d,request:await getRequest(d.request_url),note:d.reasoning_visibility==='self_report'?'图像URL指向同字节文件；书面说明来自保存的盲测子代理输出。':'图像URL指向同字节文件；思考正文仅来自服务实际返回。'});dl.append(b);box.append(dl);
 }

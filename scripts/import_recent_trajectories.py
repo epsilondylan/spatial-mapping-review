@@ -135,6 +135,19 @@ def import_flash() -> tuple[dict[str, Any], dict[str, Any]]:
     status = read_json(FLASH / "status.json")
     operations = {row["turn"]: row for row in (json.loads(line) for line in (FLASH / "operations.jsonl").read_text().splitlines())}
     history = [json.loads(line) for line in (FLASH / "public/history.jsonl").read_text().splitlines()]
+    private_events = [json.loads(line) for line in (FLASH / "private/events.jsonl").read_text().splitlines()]
+    review_poses = {}
+    for event in private_events:
+        pose = event.get("pose_private")
+        frame = (event.get("public") or {}).get("frame")
+        if frame is None or not isinstance(pose, list) or len(pose) < 3:
+            continue
+        review_poses[int(frame)] = {
+            "camera_xy": [pose[0], pose[1]],
+            "clockwise_heading_deg": pose[2],
+            "distance_m": event.get("distance"),
+            "provenance": "offline_renderer_pose",
+        }
     gt = read_json(FLASH / "private/gt.json")
     write_asset_json("data/references/multiroom-distinct-95516.json", gt)
 
@@ -142,7 +155,7 @@ def import_flash() -> tuple[dict[str, Any], dict[str, Any]]:
     for receipt in history:
         frame = receipt["frame"]
         public_receipt = {key: value for key, value in receipt.items() if key != "image"}
-        frames.append({
+        exported_frame = {
             "id": frame,
             "image": copied_media(FLASH / receipt["image"]),
             "receipt": public_receipt,
@@ -150,7 +163,10 @@ def import_flash() -> tuple[dict[str, Any], dict[str, Any]]:
                 {"kind": "fact", "text": "该 RGB 与执行回执是主动探索时公开提供给模型的记录。"},
                 {"kind": "limit", "text": "房间布局、物体真值与离线评分在本次探索中均不可见。"},
             ],
-        })
+        }
+        if frame in review_poses:
+            exported_frame["review_pose"] = review_poses[frame]
+        frames.append(exported_frame)
 
     calls = []
     for request_dir in sorted((FLASH / "requests").iterdir()):

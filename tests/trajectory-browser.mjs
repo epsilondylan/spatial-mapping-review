@@ -23,6 +23,20 @@ try {
   await page.click('#frames-view');
   await page.waitForFunction(() => document.querySelector('#step-title')?.textContent.includes('第 1 帧'));
 
+  await page.goto(base + '/#case=active-91102&model=flash&mode=claude_last8&view=calls&step=0&tab=map', {waitUntil:'domcontentloaded'});
+  await page.reload({waitUntil:'domcontentloaded'});
+  await page.waitForSelector('.trajectory-map-svg', {state:'attached'});
+  if (!(await page.locator('.trajectory-review').innerText()).includes('轨迹 × 模型地图 × GT')) throw new Error('trajectory review panel missing');
+  if ((await page.locator('.trajectory-frame-marker').count()) < 2) throw new Error('active trajectory markers missing');
+  await page.locator('.trajectory-decisions summary').click();
+  await page.locator('.trajectory-jump').nth(1).click();
+  await page.waitForFunction(() => document.querySelector('#frames-view')?.classList.contains('selected'));
+
+  await page.goto(base + '/#case=multiroom-distinct-95516&model=flash&mode=active_full_rgb&view=calls&step=0&tab=map', {waitUntil:'domcontentloaded'});
+  await page.reload({waitUntil:'domcontentloaded'});
+  await page.waitForSelector('.trajectory-map-svg', {state:'attached'});
+  if ((await page.locator('.trajectory-frame-marker').count()) !== 12) throw new Error('multiroom Flash review poses missing');
+
   await page.goto(base + '/#case=multiroom-distinct-95516&model=luna&mode=static_exact4&view=frames&step=0&tab=output', {waitUntil:'domcontentloaded'});
   await page.reload({waitUntil:'domcontentloaded'});
   await page.waitForTimeout(1000);
