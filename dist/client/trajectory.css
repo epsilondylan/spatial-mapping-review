@@ -8,9 +8,17 @@
 .trajectory-frame-marker{cursor:pointer}
 .trajectory-frame-marker:hover{fill:#4166c3}
 .trajectory-summary{margin:9px 0 4px}
+.trajectory-history-scope{margin:0 0 10px;padding:8px 10px;border-left:3px solid #8aa3d8;background:#f1f5fd;color:#536d9d;font-size:11px;line-height:1.7}
+.trajectory-first-entries{margin-top:14px;border:1px solid #e2e7ef;border-radius:7px;padding:11px 12px;background:#fff}
+.trajectory-first-entries h4{margin:0;font-size:12px}
+.trajectory-first-entries .hint{margin:5px 0 9px}
+.trajectory-entry-table{width:100%;border-collapse:collapse;font-size:11px}
+.trajectory-entry-table th,.trajectory-entry-table td{padding:6px 7px;border-top:1px solid #edf0f4;text-align:left;vertical-align:top}
+.trajectory-entry-table th{color:#6d7c91;font-weight:600;white-space:nowrap}
+.trajectory-entry-table td:last-child{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:10px}
 .trajectory-decisions{margin-top:12px;border:1px solid #e2e7ef;border-radius:7px;padding:9px 12px;background:#fbfcfe}
 .trajectory-decisions summary{cursor:pointer;font-size:12px;color:#62718a}
 .trajectory-decisions ol{max-height:270px;overflow:auto;margin:10px 0 2px;padding-left:24px;color:#68778b;font-size:11px;line-height:1.75}
 .trajectory-decisions li{padding:3px 0}
 .trajectory-jump{font-size:10px;padding:3px 6px}
-@media(max-width:760px){.trajectory-review-heading{align-items:flex-start}.trajectory-checkpoint-label{align-items:flex-start;flex-direction:column}.trajectory-map-svg{min-width:540px}.trajectory-map-canvas{overflow:auto}}
+@media(max-width:760px){.trajectory-review-heading{align-items:flex-start}.trajectory-checkpoint-label{align-items:flex-start;flex-direction:column}.trajectory-map-svg{min-width:540px}.trajectory-map-canvas{overflow:auto}.trajectory-first-entries{overflow:auto}.trajectory-entry-table{min-width:500px}}
