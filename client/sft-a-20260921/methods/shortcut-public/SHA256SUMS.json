@@ -1,0 +1,10 @@
+{
+  "README.md": "aea801e11c2725ec66d26809dc2ce9178e65d1847981b3d0f909ce1805427cdc",
+  "data.json": "c7fac7895bbb68ff9da8bde2291eae215cbe52ab7ec466943cf5686ead2b58d6",
+  "expected_results.json": "08ef3a31208df9bfab5e5f2eedee8d52ced3d234f34cab0a63bbee7bbf53a4d3",
+  "metadata.json": "47400a53e96261b124f0a87e50613603e71c546e020ebe265732894c259df95c",
+  "provenance.json": "c049fbacd5bc7c1c992e2a45f8fa1be585f68cecc6974934138bbf0eaa70be0e",
+  "reproduce.py": "cf52aa56b132e05013f9fb243f060318b83632228029dc2c0c74a559d98ca5c8",
+  "requirements.txt": "23bf63c77db7c14b9e04f686f9cb9c319c5067d5e6935299b6dcb1ca521f4a7d",
+  "verification.json": "d5b3a75a8286757a8928cb1636ec9d4f0deb793cbe000c6a0a010593e6b54d25"
+}

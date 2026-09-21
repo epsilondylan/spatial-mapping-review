@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>SFT 学到了什么？· 空间建图复盘</title><link rel="stylesheet" href="style.css"></head>
+<body><header><a href="../index.html">空间建图复盘</a><span>研究笔记 / A-20260921</span><a href="#cases">打开案例</a></header>
+<div class="layout"><nav aria-label="报告章节"><span class="nav-title">SFT 机制复盘</span><a href="#conclusion">01 / 结论</a><a href="#effect">02 / 收益在哪</a><a href="#cases">03 / 逐案例核查</a><a href="#shortcut">04 / Shortcut 审计</a><a href="#limits">05 / 边界与下一步</a><a href="#sources">方法与数据</a></nav>
+<main>
+<section id="conclusion" class="hero"><p class="eyebrow">一次训练 · 128 个新父世界 · 三路独立复核</p><h1>SFT 学到了什么？</h1><p class="deck">收益同时出现在完成、固定证据读图和定位。<br>策略模板与弱证据下的先验补全，仍需要警惕。</p><p class="intro">这里把可确认的收益、实际轨迹中的变化和仍未排除的 shortcut 分开。原确认实验已经封存；以下机制、子群与案例分析均为事后探索，没有追加模型调用，也没有改变测试世界或原计分规则。</p>
+<div class="headline"><div><span>主比较：端到端 new − base</span><strong>+0.548 <small>F1</small></strong><p>95% 配对区间 [0.499, 0.595]</p></div><div><span>预登记实用门槛</span><strong>下界 &gt; +0.05</strong><p>达到门槛 · 单 seed 结论</p></div><div><span>新模型完整输出</span><strong>128 / 128</strong><p>端到端和固定 reader 均完成</p></div></div>
+<div class="reading"><h2>先读这四点</h2><ol><li><b>确实更会完成，也更会读图。</b>共同完成集合和固定输入 reader 的收益，削弱了“只是学会 finish”的解释。</li><li><b>类别、数量、定位均要分开看。</b>严格定位阈值和同世界地图对照，比单个总 F1 更接近实际错误。</li><li><b>探索更充分，同时更模板化。</b>观察帧与动作预算变化是行为证据，尚不能直接分配收益的因果占比。</li><li><b>漂亮的成功也需要核查。</b>6 像素遮挡目标的命中，以及近似坐标但类别漂移的退化案例，都保留在这里。</li></ol></div></section>
+
+<section id="effect"><div class="section-head"><span class="eyebrow">02 / 量化拆解</span><h2>收益不只发生在“从失败到完成”</h2><p>主表为全部 128 父世界的宏平均，F1、精度、召回均将失败计零。共同完成集合只是诊断视图，受到完成状态选择的影响，不能当作 SFT 的独立因果效应。</p></div>
+<div class="table-wrap"><table><caption>全部 128 父世界 · 平均对象 F1@0.75m</caption><thead><tr><th>评测</th><th>模型</th><th>F1</th><th>完整输出</th><th>精度</th><th>召回</th><th>F1@0.25m</th><th>平均帧数</th></tr></thead><tbody id="summary"></tbody></table></div>
+<div class="controls"><label>配对比较<select id="contrast"><option value="e2e/base">端到端 new 对 base</option><option value="e2e/full128">端到端 new 对 full128</option><option value="reader/base">固定观察 reader：new 对 base</option></select></label></div>
+<div class="two-columns"><div id="common" class="finding"></div><div><h3>每个父世界的 F1</h3><div id="scatter"></div><p class="caption">圆：普通世界；方块：物理遮挡。虚线为两模型持平。点击任意点打开真实地图；重叠点可在案例下拉框中逐一查看。</p></div></div>
+<div id="quant-details"></div>
+</section>
+
+<section id="cases"><div class="section-head"><span class="eyebrow">03 / 成功、退化与疑点</span><h2>打开地图，再核对原始画面与调用</h2><p>案例按明确规则从全部结果中选择：完成救回、共同成功收益、reader 收益、最差退化、遮挡成功、可见但失败、弱证据命中及重复物体。不是成功样例集；下方也能浏览任意一个父世界。</p></div>
+<div id="case-picks" class="case-picks"></div>
+<div class="controls"><label>父世界<select id="world"></select></label><label>评测<select id="mode"><option value="e2e">端到端</option><option value="reader">固定观察 reader</option></select></label><label>对照模型<select id="comparator"><option value="base">base</option><option value="full128">full128</option></select></label><label class="check"><input id="show-gt" type="checkbox" checked>显示 GT 参考</label></div>
+<div id="case-narrative"></div>
+<div class="legend"><span><i class="gt"></i>GT：评测侧参考，模型不可见</span><span><i class="pred"></i>模型预测</span><span>连线：类别一致且距离 ≤0.75m 的匹配</span></div>
+<div id="maps" class="map-grid"></div><p class="caption">两图共用相同范围和比例。坐标以初始相机为原点：+x 向右、+y 向前，单位米。未完成结果按零分保留，不用其片段地图替代正式结果。悬停点位可见类别、坐标与证据帧编号。</p>
+<div id="case-evidence"></div>
+<details class="details"><summary>展开逐对象预测与评测参考</summary><div id="object-table"></div></details>
+</section>
+
+<section id="shortcut"><div class="section-head"><span class="eyebrow">04 / 怀疑性复核</span><h2>哪些 shortcut 被削弱，哪些还没排除？</h2><p>离线换地图、先验计分与真实模型删图干预不是同一个实验。这里会明确每个对照用了什么信息、能回答什么，以及不能回答什么。</p></div>
+<div id="shortcut-findings"></div></section>
+
+<section id="limits"><div class="section-head"><span class="eyebrow">05 / 可以说到哪里</span><h2>证据支持任务内改善，尚不支持通用空间理解</h2></div>
+<div class="two-columns"><div><h3>这轮能支持</h3><ul><li>在固定程序化环境、单训练 seed 和封存的 128 世界上，实际配方显著提高了完整输出率与对象建图质量。</li><li>相同公共观察 reader 的收益说明改善存在于固定证据的处理过程，不全依赖新模型主动获取更多画面。</li><li>轨迹显示更充分的扫描、可用的几何工具链，也显示工具参数违规、类别漂移与弱证据补全。</li></ul></div><div><h3>这轮不能识别</h3><ul><li>视觉依赖、语言先验、工具遵循分别贡献了多少；共同完成子集或 e2e−reader 差值都不是因果分解。</li><li>单 seed 不能证明训练稳定性；full128 与 new 同时改变数据构成、质量和更新量。</li><li>同一 14 类程序化资产与布局家族，不代表未见资产、真实相机或真实场景泛化。</li></ul></div></div>
+<div class="next"><h3>最小下一轮：先登记，再做输入干预</h3><p>固定权重、世界与随机数，成对执行原图／移除图像／打乱图像／打乱公共位姿；再做材质与资产替换、标签反事实及坐标系等变测试。所有条件保留相同输出预算和失败计零规则，按父世界比较。只有这些真实模型干预，才能直接检验输入依赖和 shortcut。<b>本轮尚未执行这些新模型实验。</b></p></div></section>
+
+<section id="sources"><div class="section-head"><span class="eyebrow">方法与可复核数据</span><h2>确认性结果与探索性解释分开保存</h2></div><p>基础模型为 Gemma-4-31B-it。语言 LoRA：r=8、alpha=16、dropout=0.05；视觉编码器与对齐器冻结；838 个训练世界、1676 行、单轮 419 次更新，seed 20260920。确认集为 96 普通与 32 物理遮挡父世界；主终点对象 F1@0.75m，失败计零，50,000 次分层配对 bootstrap，权重 3:1。</p><p>独立审计覆盖640份结果、575份完成预测的复算、65份失败计零、256份reader首次请求、固定扫描的2048张公共RGB的封存哈希及4254次请求元数据。没有第二次请求尝试。本页地图GT仅用于评测侧核查，未给受测模型。</p>
+<div class="downloads"><a href="data.json" download>全部128世界地图与确认结果 JSON ↓</a><a href="cases.json" download>案例选择与证据 JSON ↓</a><a href="quant.json" download>量化复盘 JSON ↓</a><a href="shortcuts.json" download>Shortcut 审计 JSON ↓</a><a href="methods/" id="methods-link">分析脚本与方法</a></div><p class="caption" id="provenance"></p><p class="caption">页面是静态研究记录。无模型调用、无凭据、无内部服务访问；原始模型文字只按真实保存输出引用，不把口述当成已证实的认知过程。</p></section>
+<footer>Spatial Review · 2026-09-21 · A single seed post hoc analysis <a href="../index.html">返回轨迹复盘</a></footer>
+</main></div><dialog id="image-dialog"><button id="close-image">关闭</button><img alt="原始公共观察帧" id="large-image"><p id="large-caption"></p></dialog><div id="error" role="alert" hidden></div><script type="module" src="app.js"></script></body></html>
