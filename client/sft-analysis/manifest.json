@@ -1,0 +1,22 @@
+{
+  "stats.json": {
+    "sha256": "eee550656c31d8d69fcc6fd742b9bf5ad19b173faf73fbafa8394d4f4c3bdbe4",
+    "bytes": 217458
+  },
+  "behavior.json": {
+    "sha256": "6ca5a3530822f869d8fa0dca428eeadb58a5cdb65b68d25a613ccbea9829c0d9",
+    "bytes": 2052419
+  },
+  "conversation.json": {
+    "sha256": "a1c3234f1937d6b4d7443a6d7a062a379ab5fbaf43ddd7ee7751430cc961e411",
+    "bytes": 2366029
+  },
+  "localization.json": {
+    "sha256": "5b3f5ca4dbbfd4b6967c0afaab4b27e054ab09bc26aa4e510c7abbb5f1131232",
+    "bytes": 272943
+  },
+  "transfer.json": {
+    "sha256": "c8c34c41239c50ae059e39291ea263e7a5828fc5c2a75f8de4bab65145f1fde3",
+    "bytes": 29476
+  }
+}

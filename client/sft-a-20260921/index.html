@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>SFT 学到了什么？· 空间建图复盘</title><link rel="stylesheet" href="style.css"></head>
-<body><div style="padding:12px 4%;background:#e7f2ef"><a style="color:#006b57;font-weight:650" href="../sft-compare.html">打开全部 128 案例：微调前后聊天、观察帧与行动地图对比 ↗</a></div><header><a href="../index.html">空间建图复盘</a><span>研究笔记 / A-20260921</span><a href="#cases">打开案例</a></header>
+<body><div style="padding:12px 4%;background:#e7f2ef"><a style="color:#006b57;font-weight:650" href="../sft-compare.html">打开全部 128 案例：微调前后聊天、观察帧与行动地图对比 ↗</a> · <a style="color:#006b57" href="../sft-findings.html">新增：行为、工具纠错与配对分析 ↗</a></div><header><a href="../index.html">空间建图复盘</a><span>研究笔记 / A-20260921</span><a href="#cases">打开案例</a></header>
 <div class="layout"><nav aria-label="报告章节"><span class="nav-title">SFT 机制复盘</span><a href="#conclusion">01 / 结论</a><a href="#effect">02 / 收益在哪</a><a href="#cases">03 / 逐案例核查</a><a href="#shortcut">04 / Shortcut 审计</a><a href="#limits">05 / 边界与下一步</a><a href="#sources">方法与数据</a></nav>
 <main>
 <section id="conclusion" class="hero"><p class="eyebrow">一次训练 · 128 个新父世界 · 三路独立复核</p><h1>SFT 学到了什么？</h1><p class="deck">收益同时出现在完成、固定证据读图和定位。<br>策略模板与弱证据下的先验补全，仍需要警惕。</p><p class="intro">这里把可确认的收益、实际轨迹中的变化和仍未排除的 shortcut 分开。原确认实验已经封存；以下机制、子群与案例分析均为事后探索，没有追加模型调用，也没有改变测试世界或原计分规则。</p>
