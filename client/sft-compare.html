@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>微调前后 · 空间轨迹对比</title><link rel="stylesheet" href="sft-compare.css"></head>
+<body>
+<header><a class="brand" href="./">◈ 空间建图复盘</a><nav><a href="trajectories.html">原有模型轨迹</a><a href="sft-a-20260921/">SFT 机制与评估报告 ↗</a></nav></header>
+<main>
+<section class="intro"><div><p class="eyebrow">同一场景 · 同一评测协议 · 逐案例配对</p><h1>微调前后，发生了什么？</h1><p>Gemma 基座 <span class="base-text">Base</span> 与 <span class="sft-text">SFT · 838 世界 / 419 步</span> 的真实观察、行动和完整对话。</p></div><div id="cohort" class="cohort" role="status">正在载入配对记录…</div></section>
+<section class="controls" aria-label="选择配对案例">
+<label>评测模式<select id="mode"><option value="e2e">自主探索 → 建图</option><option value="reader">固定 16 图 → 读取建图</option></select></label>
+<label>筛选<select id="filter"><option value="all">全部 128 案例</option><option value="improved">SFT 得分提高</option><option value="regressed">SFT 得分下降</option><option value="failed">包含失败记录</option><option value="occlusion">物理遮挡场景</option></select></label>
+<label class="case-picker">配对场景<select id="case" aria-label="配对场景"></select></label>
+<div class="case-nav"><button id="prev-case" aria-label="上一个案例">←</button><button id="next-case" aria-label="下一个案例">→</button></div>
+<label>排序<select id="sort"><option value="scene">按场景编号</option><option value="gain">收益从高到低</option><option value="loss">退化优先</option></select></label>
+</section>
+<div id="case-summary" class="case-summary"></div><p id="mode-note" class="note"></p>
+<section class="workspace">
+<div class="view-bar"><div class="tabs" role="tablist" aria-label="对比视图"><button role="tab" data-view="map">观察与行动地图</button><button role="tab" data-view="chat">聊天视图</button><button role="tab" data-view="final">最终地图与评分</button></div><label class="sync"><input id="sync" type="checkbox" checked>同步序号</label><button id="copy-link">复制当前对比链接</button></div>
+<div id="timeline" class="timeline"><button id="prev-step" aria-label="上一步">←</button><input id="step" type="range" min="1" max="16" value="1" aria-label="同步观察帧"><button id="next-step" aria-label="下一步">→</button><strong id="step-label"></strong><button id="play">播放</button></div>
+<p id="alignment-note" class="note alignment"></p>
+<div id="panels" class="panels" aria-live="polite"></div>
+</section>
+<details class="provenance"><summary>Checkpoint、数据来源与比较边界</summary><p>Checkpoint：full838_a_seed20260920_attempt03；训练 seed 20260920，838 世界，419 次更新。128 个配对世界：96 个普通场景 + 32 个物理遮挡场景。所有案例均保留，包括失败；失败按原协议记 0。F1 使用官方保存的 F1@0.75m，未重新选择样本。</p><p>图片为原始输入字节；聊天来自保存的真实请求与输出，没有补写隐藏思考。房间轮廓、GT 和相机坐标来自离线评测，不是模型输入。行动路径取实际环境位姿，碰撞后的请求位移不当作真实位移。</p><p>固定观察模式由脚本采集同一组 RGB，两边在此模式没有自主移动。本实验是单训练 seed、同资产体系的新布局测试，不能据此外推跨 seed、真实世界或 ToS 任务收益。ToS 原生 OOD 中的整体分数反而下降；两个评测协议不可混算。</p><a href="sft-data/provenance.json.gz" download>下载来源校验记录</a> · <a href="sft-a-20260921/">查看原评估报告</a></details>
+</main>
+<dialog id="image-dialog"><button id="close-image">关闭 ×</button><img id="large-image" alt="原始输入图像"></dialog>
+<div id="toast" role="status"></div><script type="module" src="sft-compare.js"></script>
+</body></html>

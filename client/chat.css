@@ -6,3 +6,5 @@
 .chat-tool-request{margin:14px 0;border:1px solid #aacfb9;border-radius:8px;padding:12px;background:#ffffff65}.chat-tool-name{font-size:12px;font-weight:700;color:#20563b}.chat-receipt{font-size:12px;line-height:1.7;background:#edf5fa;padding:9px;border-radius:6px}.chat-primary-link{font-weight:650;white-space:nowrap;color:#197153}
 
 .chat-thinking{margin:12px 0;border:1px solid #b8d6c2;border-radius:8px;padding:10px}.chat-thinking>summary{cursor:pointer;font-size:12px;color:#356148}#show-chat-controls{font-size:12px}@media(max-width:600px){.chat-header{gap:10px;flex-wrap:wrap}.chat-header strong{font-size:12px}}
+
+.image-load-error{display:block;padding:12px;background:#fff3db;color:#694813;font-size:14px}.image-load-error button{cursor:pointer}.image-failed{min-height:80px}

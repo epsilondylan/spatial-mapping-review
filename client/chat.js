@@ -1,3 +1,4 @@
+import {evidenceImage,setImageSource} from './media.js';
 import {get,getRequest,el,code,detail,reviewURL} from './evidence.js';
 import {mountNotes} from './chat-notes.js';
 import {conversationWindow} from './transcript.js';
@@ -7,7 +8,7 @@ const modes={full:'完整RGB · 允许思考',last8:'最近8图 · 允许思考'
 const kindNames={common:'固定轨迹对照',active:'自主探索',static:'固定四视角盲测',baseline:'SpatialClaw 工具审计'};
 let run,caseInfo,sections=[],selected=0,observer,view=params.get('view')==='requests'?'requests':'conversation';
 function setHash(i,focus='call'){history.replaceState(null,'','#'+new URLSearchParams({call:i,focus}))}
-function image(src){const img=el('img','chat-image');img.src=src;img.loading='lazy';img.alt='本条消息中的模型输入图像';img.onclick=()=>{$('#chat-large-image').src=src;$('#chat-image-dialog').showModal()};return img}
+function image(src){return evidenceImage(src,{className:'chat-image',onOpen:url=>{setImageSource($('#chat-large-image'),url);$('#chat-image-dialog').showModal()}})}
 function message(m,label){
  const row=el('div','chat-event'+(m.role==='assistant'?' outgoing':' incoming')),bubble=el('div','chat-bubble');row.dataset.role=m.role||'unknown';bubble.append(el('div','chat-role',label));
  if(m.role==='tool'&&typeof m.content==='string'){try{const receipt=JSON.parse(m.content);if(receipt.frame&&receipt.requested_action){const a=receipt.requested_action;bubble.append(el('div','chat-receipt',`环境回执 · 帧 ${receipt.frame} · 转向 ${a.turn_deg}° · 移动请求 ${a.move_m} m · ${receipt.status}`));if(receipt.image)bubble.append(el('p','hint','此回执返回图片路径；实际发送给模型的图片在对应图像消息中显示。'))}}catch{}}

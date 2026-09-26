@@ -1,3 +1,4 @@
+import {evidenceImage,setImageSource} from './media.js';
 import {renderTrajectoryReview} from './trajectory-map.js';
 const $=s=>document.querySelector(s), el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n};
 const modelNames={qwen:'Qwen 3.8 · 27B',gemma:'Gemma 4 · 31B',flash:'Gemini 3.8 Flash',astra:'GPT‑6 Astra',luna:'GPT‑5.6 Luna',spatialclaw:'SpatialClaw tools + Codex',opus:'Claude Opus 5'};
@@ -19,7 +20,7 @@ const clear=n=>n.replaceChildren(), code=t=>el('pre','code',typeof t==='string'?
 const notice=(t,blue=false)=>el('div','notice'+(blue?' blue':''),t);
 function toast(t){$('#toast').textContent=t;$('#toast').style.display='block';setTimeout(()=>$('#toast').style.display='none',3500)}
 function download(name,obj){const u=URL.createObjectURL(new Blob([typeof obj==='string'?obj:JSON.stringify(obj,null,2)],{type:'application/json'}));const a=el('a');a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),5000)}
-function imageNode(src,cls=''){const n=el('img',cls);n.src=src;n.alt='模型收到的原始RGB';n.loading='lazy';n.onclick=()=>{$('#large-image').src=src;$('#image-dialog').showModal()};return n}
+function imageNode(src,cls='',eager=false){return evidenceImage(src,{className:cls,eager,onOpen:url=>{setImageSource($('#large-image'),url);$('#image-dialog').showModal()}})}
 function listCases(){
  const box=$('#case-list');clear(box);const query=$('#case-search').value.trim();
  for(const [kind,label] of caseGroups){
@@ -68,7 +69,7 @@ async function selectStep(i){
 }
 function gallery(box,images){
  const wrap=el('div');if(!images.length){wrap.append(el('div','empty-state','本次请求没有图像块，可查看下方完整文字输入。'));box.append(wrap);return}
- const stage=el('div','media-stage');const main=imageNode(images[state.image]);stage.append(main);wrap.append(stage);
+ const stage=el('div','media-stage');const main=imageNode(images[state.image],'',true);stage.append(main);wrap.append(stage);
  const line=el('div','media-caption');line.append(el('span','',`本次输入图像 ${state.image+1} / ${images.length} · 点击放大`));const nav=el('span');
  for(const [text,delta] of [['‹',-1],['›',1]]){const b=el('button','',text);b.disabled=state.image+delta<0||state.image+delta>=images.length;b.onclick=()=>{state.image+=delta;const parent=wrap.parentNode;wrap.remove();gallery(parent,images)};nav.append(b)}line.append(nav);wrap.append(line);
  const thumbs=el('div','thumbs');images.forEach((src,i)=>{const b=el('button',i===state.image?'active':'');const im=imageNode(src);im.onclick=null;b.append(im);b.title=`输入图像 ${i+1}`;b.onclick=()=>{state.image=i;const parent=wrap.parentNode;wrap.remove();gallery(parent,images)};thumbs.append(b)});wrap.append(thumbs);box.append(wrap);
