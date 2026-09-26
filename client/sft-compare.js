@@ -35,7 +35,7 @@ function refreshCohort(){
 }
 async function loadPair(){
   stopPlay();const token=++state.token;listCases();refreshCohort();state.pair=null;
-  if(!state.scene){$('#panels').replaceChildren(el('p','empty','该筛选下没有案例。'));$('#case-summary').replaceChildren();$('#timeline').hidden=true;return}
+  if(!state.scene){$('#panels').replaceChildren(el('p','empty','该筛选下没有案例。'));$('#case-summary').replaceChildren();$('#timeline').hidden=true;$('#timeline').style.display='none';$('#alignment-note').textContent='';return}
   saveURL();$('#panels').replaceChildren(el('div','loading','正在载入两条轨迹…'));
   try{
     const c=state.index.cases.find(c=>c.id===state.scene),pair=await get(c.modes[state.mode].url);
@@ -120,7 +120,7 @@ function message(m,label){
 async function chatPanel(box,arm,token){
   const r=state.pair.runs[arm];navigation(box,arm);const i=Math.min(state.steps[arm],r.calls.length)-1,c=r.calls[i];
   if(!c){box.append(el('div','empty','没有保存的模型调用。'));return}
-  const jumpbar=el('div','chat-jumps'),inputButton=el('button','','回到输入 ↑'),replyButton=el('button','','本次完整回答 ↓');jumpbar.append(inputButton,replyButton);box.append(jumpbar);const content=el('div','conversation');box.append(content);inputButton.onclick=()=>content.scrollTo({top:0,behavior:'smooth'});replyButton.onclick=()=>{const reply=content.querySelector('.current-reply');if(reply)content.scrollTo({top:reply.offsetTop-content.offsetTop,behavior:'smooth'})};content.append(el('div','loading','正在还原真实输入与输出…'));
+  const jumpbar=el('div','chat-jumps'),inputButton=el('button','','回到输入 ↑'),replyButton=el('button','','本次完整回答 ↓');jumpbar.append(inputButton,replyButton);box.append(jumpbar);const content=el('div','conversation');box.append(content);inputButton.onclick=()=>content.scrollTo({top:0,behavior:'smooth'});replyButton.onclick=()=>{const reply=content.querySelector('.current-reply');if(reply)content.scrollTo({top:reply.offsetTop,behavior:'smooth'})};content.append(el('div','loading','正在还原真实输入与输出…'));
   try{
     const [d,previous]=await Promise.all([get(c.url),i?get(r.calls[i-1].url):Promise.resolve(null)]);
     if(token!==state.token)return;content.replaceChildren();
